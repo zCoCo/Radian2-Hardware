@@ -1,0 +1,1 @@
+avrdude -C avrdude.conf -c atmelice_isp -vvv -p t48 -U flash:w:R2E4_Motor_Test.ino.hex:i
