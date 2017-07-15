@@ -90,20 +90,20 @@ void AccelStepper_Mini::setCurrentPosition(long position)
     _targetPos = _currentPos = position;
     _n = 0;
     _stepInterval = 0;
-    _speed = 0;
+    _speed = 0.0;
 }
 
 void AccelStepper_Mini::computeNewSpeed()
 {
     long distanceTo = distanceToGo(); // +ve is clockwise from curent location
 
-    long stepsToStop = (long)((_speed * _speed) / (2 * _acceleration)); // Equation 16
+    long stepsToStop = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
 
     if (distanceTo == 0 && stepsToStop <= 1)
     {
 	// We are at the target and its time to stop
 	_stepInterval = 0;
-	_speed = 0;
+	_speed = 0.0;
 	_n = 0;
 	return;
     }
@@ -183,16 +183,16 @@ boolean AccelStepper_Mini::run()
 {
     if (runSpeed())
 	computeNewSpeed();
-    return _speed != 0 || distanceToGo() != 0;
+    return _speed != 0.0 || distanceToGo() != 0;
 }
 
 AccelStepper_Mini::AccelStepper_Mini(uint8_t pin1, uint8_t pin2, bool enable)
 {
     _currentPos = 0;
     _targetPos = 0;
-    _speed = 0;
-    _maxSpeed = 1;
-    _acceleration = 0;
+    _speed = 0.0;
+    _maxSpeed = 1.0;
+    _acceleration = 0.0;
     _sqrt_twoa = 1.0;
     _stepInterval = 0;
     _minPulseWidth = 1;
@@ -215,7 +215,7 @@ AccelStepper_Mini::AccelStepper_Mini(uint8_t pin1, uint8_t pin2, bool enable)
 }
 
 
-void AccelStepper_Mini::setMaxSpeed(uint8_t speed)
+void AccelStepper_Mini::setMaxSpeed(float speed)
 {
     if (_maxSpeed != speed)
     {
@@ -224,7 +224,7 @@ void AccelStepper_Mini::setMaxSpeed(uint8_t speed)
 	// Recompute _n from current speed and adjust speed if accelerating or cruising
 	if (_n > 0)
 	{
-	    _n = (long)((_speed * _speed) / (2 * _acceleration)); // Equation 16
+	    _n = (long)((_speed * _speed) / (2.0 * _acceleration)); // Equation 16
 	    computeNewSpeed();
 	}
     }
@@ -235,9 +235,9 @@ float   AccelStepper_Mini::maxSpeed()
     return _maxSpeed;
 }
 
-void AccelStepper_Mini::setAcceleration(word acceleration)
+void AccelStepper_Mini::setAcceleration(float acceleration)
 {
-    if (acceleration == 0)
+    if (acceleration == 0.0)
 	return;
     if (_acceleration != acceleration)
     {
@@ -250,17 +250,17 @@ void AccelStepper_Mini::setAcceleration(word acceleration)
     }
 }
 
-void AccelStepper_Mini::setSpeed(uint8_t speed)
+void AccelStepper_Mini::setSpeed(float speed)
 {
     if (speed == _speed)
         return;
     speed = constrain(speed, -_maxSpeed, _maxSpeed);
-    if (speed == 0)
+    if (speed == 0.0)
 	_stepInterval = 0;
     else
     {
 	_stepInterval = fabs(1000000.0 / speed);
-	_direction = (speed > 0) ? DIRECTION_CW : DIRECTION_CCW;
+	_direction = (speed > 0.0) ? DIRECTION_CW : DIRECTION_CCW;
     }
     _speed = speed;
 }
@@ -347,9 +347,9 @@ void AccelStepper_Mini::runToNewPosition(long position)
 
 void AccelStepper_Mini::stop()
 {
-    if (_speed != 0)
+    if (_speed != 0.0)
     {
-	long stepsToStop = (long)((_speed * _speed) / (2 * _acceleration)) + 1; // Equation 16 (+integer rounding)
+	long stepsToStop = (long)((_speed * _speed) / (2.0 * _acceleration)) + 1; // Equation 16 (+integer rounding)
 	if (_speed > 0)
 	    move(stepsToStop);
 	else
@@ -359,5 +359,5 @@ void AccelStepper_Mini::stop()
 
 bool AccelStepper_Mini::isRunning()
 {
-    return !(_speed == 0 && _targetPos == _currentPos);
+    return !(_speed == 0.0 && _targetPos == _currentPos);
 }

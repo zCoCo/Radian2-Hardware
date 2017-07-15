@@ -235,6 +235,7 @@
 #ifndef AccelStepper_Mini_h
 #define AccelStepper_Mini_h
 
+#include <stdlib.h>
 #if ARDUINO >= 100
 #include <Arduino.h>
 #else
@@ -357,7 +358,7 @@ public:
     /// \param[in] speed The desired maximum speed in steps per second. Must
     /// be > 0. Caution: Speeds that exceed the maximum speed supported by the processor may
     /// Result in non-linear accelerations and decelerations.
-    void    setMaxSpeed(uint8_t speed);
+    void    setMaxSpeed(float speed);
 
     /// returns the maximum speed configured for this stepper
     /// that was previously set by setMaxSpeed();
@@ -368,7 +369,7 @@ public:
     /// \param[in] acceleration The desired acceleration in steps per second
     /// per second. Must be > 0.0. This is an expensive call since it requires a square
     /// root to be calculated. Dont call more ofthen than needed
-    void    setAcceleration(word acceleration);
+    void    setAcceleration(float acceleration);
 
     /// Sets the desired constant speed for use with runSpeed().
     /// \param[in] speed The desired constant speed in steps per
@@ -376,7 +377,7 @@ public:
     /// second are unreliable. Very slow speeds may be set (eg 0.00027777 for
     /// once per hour, approximately. Speed accuracy depends on the Arduino
     /// crystal. Jitter depends on how frequently you call the runSpeed() function.
-    void    setSpeed(uint8_t speed);
+    void    setSpeed(float speed);
 
     /// The most recently set speed
     /// \return the most recent speed in steps per second
@@ -511,14 +512,14 @@ private:
 
     /// The current motos speed in steps per second
     /// Positive is clockwise
-    uint8_t          _speed;         // Steps per second
+    float          _speed;         // Steps per second
 
     /// The maximum permitted speed in steps per second. Must be > 0.
-    uint8_t          _maxSpeed;
+    float          _maxSpeed;
 
     /// The acceleration to use to accelerate or decelerate the motor in steps
     /// per second per second. Must be > 0
-    word          _acceleration;
+    float          _acceleration;
     float          _sqrt_twoa; // Precomputed sqrt(2*_acceleration)
 
     /// The current interval between steps in microseconds.
