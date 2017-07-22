@@ -1,0 +1,4 @@
+- avrdude (to upload program)
+- Arduino IDE (to compile changes)
+- Attiny Core for Arduino (to support ATtiny1634 target)
+- Copy library directories (except those prefixed with "OLD_") in ./lib/ to Arduino libraries directory

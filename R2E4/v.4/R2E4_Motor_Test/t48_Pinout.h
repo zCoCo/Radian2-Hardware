@@ -24,7 +24,7 @@
 #define PC6 26 /* RST */
 #define PC7 16
 
-#define PDO 0
+#define PD0 0
 #define PD1 1
 #define PD2 2 /* INT0 */
 #define PD3 3 /* INT1 */
