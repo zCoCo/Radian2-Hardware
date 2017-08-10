@@ -25,15 +25,18 @@ as well as Adafruit raw 1.8" TFT display
 #include <Adafruit_ST7735.h> // Hardware-specific library
 #include <SPI.h>
 #include "PetitFS.h"
-#include "t1634_Pinout.h"
+//#include "t1634_Pinout.h"
+#include "m168_Pinout.h"
 
 // TFT display and SD card will share the hardware SPI interface.
-#define TFT_CS PA6 // Chip select line for TFT display
-#define TFT_RST PA5 // Reset line for TFT (or see below...)
-#define TFT_DC PC2 // Data/command line for TFT
+#define TFT_CS PB0
+#define TFT_RST PD2
+#define TFT_DC PD1
+//#define TFT_LED PB3 // Backlight
 
-#define SD_CS PB0 // Chip select line for SD card
+#define SD_CS PD0 // Chip select line for SD card
 
+//Bit Bang SoftSPI to correct for USI to SPI reversal in R2BB8 v.2b
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 // The SD chip select pin is currently defined as PB0
@@ -42,22 +45,51 @@ FATFS fs;     /* File system object */
  UINT nr; //Number of bytes read.
 
 void errorHalt(char* msg) {
-  while(1);
+  //while(1);
+}
+
+void debugMsg(char * msg){
+  tft.fillScreen(ST7735_BLACK);
+  tft.setCursor(30, 30);
+  tft.setTextColor(ST7735_RED);
+  tft.setTextSize(1);
+  tft.println(msg);
 }
 
 void setup(void) {
   // Use this initializer if you're using a 1.8" TFT
-  tft.initR(INITR_BLACKTAB);
-  tft.setRotation(1);
+  tft.initR(INITR_GREENTAB);
+  tft.setRotation(3);
+  // Init. Backlight
+  //pinMode(TFT_LED, OUTPUT);
+   //analogWrite(TFT_LED, 250);
 
-  if (!pf_mount(&fs)) {
-    return;
-  } else {
-    errorHalt("");
+  //testlines(ST7735_YELLOW);
+  tft.fillScreen(ST7735_BLACK);
+  for (int16_t x=0; x < tft.width(); x+=6) {
+    tft.drawLine(0, 0, x, tft.height()-1, ST7735_YELLOW);
+  }
+  for (int16_t y=0; y < tft.height(); y+=6) {
+    tft.drawLine(0, 0, tft.width()-1, y, ST7735_YELLOW);
+  }
+
+    debugMsg("PFM Test:");
+    delay(1000);
+    FRESULT pfm = pf_mount(&fs);
+  if (pfm == FR_OK) {
+    debugMsg("PFM OK");
+  } else if(pfm == FR_NOT_READY) {
+    debugMsg("PFM NR");
+  } else if(pfm == FR_DISK_ERR) {
+    debugMsg("PFM ERR");
+  } else if(pfm == FR_NO_FILESYSTEM) {
+    debugMsg("PFM NF");
+  } else{
+    debugMsg(">UNK ERR<");
   }
 }
 
-void loop() {
+void loop() {/*
   bmpDraw("d2Print.bmp", 0, 0);
    delay(5000);
   bmpDraw("d2Paste.bmp", 0, 0);
@@ -65,7 +97,7 @@ void loop() {
   bmpDraw("d2Mill.bmp", 0, 0);
    delay(5000);
   bmpDraw("d2Plot.bmp", 0, 0);
-   delay(5000);
+   delay(5000);*/
 }
 
 // This function opens a Windows Bitmap (BMP) file and
@@ -197,16 +229,46 @@ void bmpDraw(char *filename, uint8_t x, uint8_t y) {
 
 uint16_t read16(char* f) {
   uint16_t result;
-  pf_read(((uint8_t *)&result)[0], 1, &nr); //LSB
-  pf_read(((uint8_t *)&result)[1], 1, &nr); //MSB
+  pf_read(result, sizeof result, &nr);
   return result;
 }
 
 uint32_t read32(char* f) {
   uint32_t result;
-  pf_read(((uint8_t *)&result)[0], 1, &nr); //LSB
-  pf_read(((uint8_t *)&result)[1], 1, &nr);
-  pf_read(((uint8_t *)&result)[2], 1, &nr);
-  pf_read(((uint8_t *)&result)[3], 1, &nr); //MSB
+  pf_read(result, sizeof result, &nr);
   return result;
+}
+
+void testlines(uint16_t color) {
+  tft.fillScreen(ST7735_BLACK);
+  for (int16_t x=0; x < tft.width(); x+=6) {
+    tft.drawLine(0, 0, x, tft.height()-1, color);
+  }
+  for (int16_t y=0; y < tft.height(); y+=6) {
+    tft.drawLine(0, 0, tft.width()-1, y, color);
+  }
+
+  tft.fillScreen(ST7735_BLACK);
+  for (int16_t x=0; x < tft.width(); x+=6) {
+    tft.drawLine(tft.width()-1, 0, x, tft.height()-1, color);
+  }
+  for (int16_t y=0; y < tft.height(); y+=6) {
+    tft.drawLine(tft.width()-1, 0, 0, y, color);
+  }
+
+  tft.fillScreen(ST7735_BLACK);
+  for (int16_t x=0; x < tft.width(); x+=6) {
+    tft.drawLine(0, tft.height()-1, x, 0, color);
+  }
+  for (int16_t y=0; y < tft.height(); y+=6) {
+    tft.drawLine(0, tft.height()-1, tft.width()-1, y, color);
+  }
+
+  tft.fillScreen(ST7735_BLACK);
+  for (int16_t x=0; x < tft.width(); x+=6) {
+    tft.drawLine(tft.width()-1, tft.height()-1, x, 0, color);
+  }
+  for (int16_t y=0; y < tft.height(); y+=6) {
+    tft.drawLine(tft.width()-1, tft.height()-1, 0, y, color);
+  }
 }

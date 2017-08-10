@@ -16,7 +16,7 @@
 #define	SELECTING	!(PORTB &  _BV(3))	/* CS status (true:CS low) */
 #define	FORWARD(d)	xmit(d)				/* Data forwarding function (console out) */
 #else // Implement SPI Functionality without s-code
-#include "pffUSITiny.h"  // cwc
+#include "pffArduino.h"
 #endif
 void xmit (char);			/* suart.S: Send a byte via software UART */
 void dly_100us (void);		/* usi.S: Delay 100 microseconds */

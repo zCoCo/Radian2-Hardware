@@ -3,10 +3,11 @@
 #include <avr/io.h>
 #include <util/delay_basic.h>
 #include "integer.h"
-#include "t1634_Pinout.h"
+//#include "t1634_Pinout.h"
+#include "m168_Pinout.h"
 
 // SD chip select pin
-#define SD_CS_PIN PB0
+#define SD_CS_PIN PD0
 
 // Use SPI SCK divisor of 2 if nonzero else 4.
 #define SPI_FCPU_DIV_2 1
