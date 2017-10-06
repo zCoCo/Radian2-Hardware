@@ -6,6 +6,8 @@
 #include <Adafruit_TFTLCD.h> // Hardware-specific library
 #include <TouchScreen.h>
 
+#include "./Graphics/Colors.h"
+
 #if defined(__SAM3X8E__)
     #undef __FlashStringHelper::F(string_literal)
     #define F(string_literal) string_literal
@@ -66,17 +68,6 @@ TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
 // optional
 #define LCD_RESET A7
 
-// Assign human-readable names to some common 16-bit color values:
-#define	BLACK   0x0000
-#define	BLUE    0x001F
-#define	RED     0xF800
-#define	GREEN   0x07E0
-#define CYAN    0x07FF
-#define MAGENTA 0xF81F
-#define YELLOW  0xFFE0
-#define WHITE   0xFFFF
-
-
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 
 #define BOXSIZE 40
@@ -86,31 +77,16 @@ int oldcolor, currentcolor;
 void setup(void) {
   delay(500); // -- DISPLAY DOESN'T WORK IF NOT GIVEN TIME TO INITIALIZE W/PWR BEFORE TALKING.
   Serial.begin(9600);
-  Serial.println(F("Paint!"));
-  
+
   tft.reset();
-  
+
   uint16_t identifier = tft.readID();
 
-  if(identifier == 0x9325) {
-    Serial.println(F("Found ILI9325 LCD driver"));
-  } else if(identifier == 0x9328) {
-    Serial.println(F("Found ILI9328 LCD driver"));
-  } else if(identifier == 0x7575) {
-    Serial.println(F("Found HX8347G LCD driver"));
-  } else if(identifier == 0x9341) {
+  if(identifier == 0x9341) {
     Serial.println(F("Found ILI9341 LCD driver"));
-  } else if(identifier == 0x8357) {
-    Serial.println(F("Found HX8357D LCD driver"));
   } else {
     Serial.print(F("Unknown LCD driver chip: "));
     Serial.println(identifier, HEX);
-    Serial.println(F("If using the Adafruit 2.8\" TFT Arduino shield, the line:"));
-    Serial.println(F("  #define USE_ADAFRUIT_SHIELD_PINOUT"));
-    Serial.println(F("should appear in the library header (Adafruit_TFT.h)."));
-    Serial.println(F("If using the breakout board, it should NOT be #defined!"));
-    Serial.println(F("Also if using the breakout, double-check that all wiring"));
-    Serial.println(F("matches the tutorial."));
     return;
   }
 
@@ -125,41 +101,27 @@ void setup(void) {
   tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
   tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
   // tft.fillRect(BOXSIZE*6, 0, BOXSIZE, BOXSIZE, WHITE);
- 
+
   tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
   currentcolor = RED;
- 
+
   pinMode(13, OUTPUT);
 }
 
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
 
-void loop()
-{
-  digitalWrite(13, HIGH);
+void loop() {
   TSPoint p = ts.getPoint();
-  digitalWrite(13, LOW);
 
-  // if sharing pins, you'll need to fix the directions of the touchscreen pins
-  //pinMode(XP, OUTPUT);
   pinMode(XM, OUTPUT);
   pinMode(YP, OUTPUT);
-  //pinMode(YM, OUTPUT);
-
-  // we have some minimum pressure we consider 'valid'
-  // pressure of 0 means no pressing!
 
   if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-    /*
-    Serial.print("X = "); Serial.print(p.x);
-    Serial.print("\tY = "); Serial.print(p.y);
-    Serial.print("\tPressure = "); Serial.println(p.z);
-    */
-    
+
     if (p.y < (TS_MINY-5)) {
       Serial.println("erase");
-      // press the bottom of the screen to erase 
+      // press the bottom of the screen to erase
       tft.fillRect(0, BOXSIZE, tft.width(), tft.height()-BOXSIZE, BLACK);
     }
     // scale from 0->1023 to tft.width
@@ -173,8 +135,8 @@ void loop()
     if (p.y < BOXSIZE) {
        oldcolor = currentcolor;
 
-       if (p.x < BOXSIZE) { 
-         currentcolor = RED; 
+       if (p.x < BOXSIZE) {
+         currentcolor = RED;
          tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
        } else if (p.x < BOXSIZE*2) {
          currentcolor = YELLOW;
@@ -207,4 +169,3 @@ void loop()
     }
   }
 }
-
