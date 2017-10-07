@@ -8,43 +8,7 @@
 
 #include "./Graphics/Colors.h"
 
-#if defined(__SAM3X8E__)
-    #undef __FlashStringHelper::F(string_literal)
-    #define F(string_literal) string_literal
-#endif
-
-// When using the BREAKOUT BOARD only, use these 8 data lines to the LCD:
-// For the Arduino Uno, Duemilanove, Diecimila, etc.:
-//   D0 connects to digital pin 8  (Notice these are
-//   D1 connects to digital pin 9   NOT in order!)
-//   D2 connects to digital pin 2
-//   D3 connects to digital pin 3
-//   D4 connects to digital pin 4
-//   D5 connects to digital pin 5
-//   D6 connects to digital pin 6
-//   D7 connects to digital pin 7
-
-// For the Arduino Mega, use digital pins 22 through 29
-// (on the 2-row header at the end of the board).
-//   D0 connects to digital pin 22
-//   D1 connects to digital pin 23
-//   D2 connects to digital pin 24
-//   D3 connects to digital pin 25
-//   D4 connects to digital pin 26
-//   D5 connects to digital pin 27
-//   D6 connects to digital pin 28
-//   D7 connects to digital pin 29
-
-// For the Arduino Due, use digital pins 33 through 40
-// (on the 2-row header at the end of the board).
-//   D0 connects to digital pin 33
-//   D1 connects to digital pin 34
-//   D2 connects to digital pin 35
-//   D3 connects to digital pin 36
-//   D4 connects to digital pin 37
-//   D5 connects to digital pin 38
-//   D6 connects to digital pin 39
-//   D7 connects to digital pin 40
+// #include "BB8_Strings.h" // Localized Strings
 
 #define YP A3  // must be an analog pin, use "An" notation!
 #define XM A2  // must be an analog pin, use "An" notation!
@@ -56,16 +20,12 @@
 #define TS_MAXX 920
 #define TS_MAXY 940
 
-// For better pressure precision, we need to know the resistance
-// between X+ and X- Use any multimeter to read it
-// For the one we're using, its 300 ohms across the X plate
-TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);
+TouchScreen ts = TouchScreen(XP, YP, XM, YM, 300);// 300-Ohms Across X-Plate (~500 across Y)
 
 #define LCD_CS A3
 #define LCD_CD A2
 #define LCD_WR A1
 #define LCD_RD A0
-// optional
 #define LCD_RESET A7
 
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
@@ -77,6 +37,17 @@ int oldcolor, currentcolor;
 void setup(void) {
   delay(500); // -- DISPLAY DOESN'T WORK IF NOT GIVEN TIME TO INITIALIZE W/PWR BEFORE TALKING.
   Serial.begin(9600);
+
+  // Serial.println(GS(STR__X_Position,LID_ENGLISH));
+  // Serial.println(GS(STR__X_Position,LID_SPANISH));
+  //   Serial.println(GS(STR__Y_Position,LID_ENGLISH));
+  //   Serial.println(GS(STR__Y_Position,LID_SPANISH));
+  //     Serial.println(GS(STR__Z_Position,LID_ENGLISH));
+  //     Serial.println(GS(STR__Z_Position,LID_SPANISH));
+  //
+  // Serial.println(GSC(STR__LANGUAGE_NAME));
+  // CURR_LANG = LID_SPANISH;
+  // Serial.println(GSC(STR__LANGUAGE_NAME));
 
   tft.reset();
 
