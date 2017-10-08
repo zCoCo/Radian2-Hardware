@@ -1,4 +1,3 @@
-class MachineState {
 /****
  * Static Struct MachineState: container class for properties such as
  * Nozzle_Temperature on the machine which get updated over SPI from the Main

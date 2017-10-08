@@ -8,7 +8,7 @@
 
 #include "./Graphics/Colors.h"
 
-// #include "BB8_Strings.h" // Localized Strings
+#include "BB8_Strings.h" // Localized Strings
 
 #define YP A3  // must be an analog pin, use "An" notation!
 #define XM A2  // must be an analog pin, use "An" notation!
@@ -34,20 +34,84 @@ Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 #define PENRADIUS 3
 int oldcolor, currentcolor;
 
+#define NUM_TEST_STRS 2
+const __FlashStringHelper* TEST_STRING;
+const __FlashStringHelper* TEST_STRING_B;
+const __FlashStringHelper* TEST_STRING_ARR[NUM_TEST_STRS];
+const __FlashStringHelper* TEST_STRING_ARRUN[NUM_TEST_STRS];
+byte idx = 0;
+
+void populateTestStrings(){
+  TEST_STRING = SS("TEST STRING");
+  TEST_STRING_B = SS("TEST STRING B");
+  TEST_STRING_ARR[0] = SS("TEST STRING A0");
+  TEST_STRING_ARR[1] = SS("TEST STRING A1");
+  TEST_STRING_ARRUN[0] = SS("TEST STRING AUN0");
+}
+
+const __FlashStringHelper* GetTestString(const __FlashStringHelper* arr[], byte lang){
+  const __FlashStringHelper* ret_arr = arr[0];
+  if(arr[lang] != nullptr){
+    ret_arr = arr[lang];
+  }
+  return ret_arr;
+}
+
 void setup(void) {
+  //Initialize Data Structures:
+  populateStrings();
+
+
   delay(500); // -- DISPLAY DOESN'T WORK IF NOT GIVEN TIME TO INITIALIZE W/PWR BEFORE TALKING.
   Serial.begin(9600);
 
-  // Serial.println(GS(STR__X_Position,LID_ENGLISH));
-  // Serial.println(GS(STR__X_Position,LID_SPANISH));
-  //   Serial.println(GS(STR__Y_Position,LID_ENGLISH));
-  //   Serial.println(GS(STR__Y_Position,LID_SPANISH));
-  //     Serial.println(GS(STR__Z_Position,LID_ENGLISH));
-  //     Serial.println(GS(STR__Z_Position,LID_SPANISH));
-  //
-  // Serial.println(GSC(STR__LANGUAGE_NAME));
-  // CURR_LANG = LID_SPANISH;
-  // Serial.println(GSC(STR__LANGUAGE_NAME));
+  Serial.println(F("Test Begins"));
+  populateTestStrings();
+  Serial.println(TEST_STRING);
+
+  Serial.println("Array Index Test:");
+  Serial.println(TEST_STRING_ARR[0]);
+  Serial.println(TEST_STRING_ARR[1]);
+
+  Serial.println("Array Variable Index Test:");
+  Serial.println(TEST_STRING_ARR[idx]);
+  idx = 1;
+  Serial.println(TEST_STRING_ARR[1]);
+
+  Serial.println("Array TestGet Function Test:");
+  Serial.println(GetTestString(TEST_STRING_ARR,0));
+  Serial.println(GetTestString(TEST_STRING_ARR,1));
+  Serial.println("Array Get Function Test:");
+  Serial.println(GetString(TEST_STRING_ARR,0));
+  Serial.println(GetString(TEST_STRING_ARR,1));
+  Serial.println("Array GS Function Test:");
+  Serial.println(GS(TEST_STRING_ARR,0));
+  Serial.println(GS(TEST_STRING_ARR,1));
+  Serial.println("Array GS UN Function Test:");
+  Serial.println(GS(TEST_STRING_ARRUN,0));
+  Serial.println(GS(TEST_STRING_ARRUN,1));
+  Serial.println("Array GS OB Function Test:");
+  Serial.println(GS(TEST_STRING_ARR,0));
+  Serial.println(GS(TEST_STRING_ARR,1));
+  Serial.println(GS(TEST_STRING_ARR,2));
+  Serial.println(GS(TEST_STRING_ARR,3));
+  Serial.println(GS(TEST_STRING_ARR,4));
+  Serial.println("Array GS LID Function Test:");
+  Serial.println(GS(TEST_STRING_ARR,LID_ENGLISH));
+  Serial.println(GS(TEST_STRING_ARR,LID_SPANISH));
+
+  Serial.print("\nString Population Built: ");
+  Serial.println(strings_populated);
+  Serial.println(GS(STR__X_Position,LID_ENGLISH));
+  Serial.println(GS(STR__X_Position,LID_SPANISH));
+    Serial.println(GS(STR__Y_Position,LID_ENGLISH));
+    Serial.println(GS(STR__Y_Position,LID_SPANISH));
+      Serial.println(GS(STR__Z_Position,LID_ENGLISH));
+      Serial.println(GS(STR__Z_Position,LID_SPANISH));
+
+  Serial.println(GSC(STR__LANGUAGE_NAME));
+  CURR_LANG = LID_SPANISH;
+  Serial.println(GSC(STR__LANGUAGE_NAME));
 
   tft.reset();
 
@@ -75,6 +139,16 @@ void setup(void) {
 
   tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
   currentcolor = RED;
+
+
+  tft.setCursor(50, 50);
+  tft.setTextColor(GREEN);  tft.setTextSize(2);
+  tft.println(F("End Test"));
+  tft.setCursor(50, 90);
+  tft.println(F("End Test 2"));
+  tft.setCursor(50, 110);
+  tft.println(TEST_STRING);
+
 
   pinMode(13, OUTPUT);
 }
