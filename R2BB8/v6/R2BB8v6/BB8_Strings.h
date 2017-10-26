@@ -28,9 +28,7 @@ const __FlashStringHelper* GetString(const __FlashStringHelper* arr[], byte lang
   const __FlashStringHelper* ret_str = arr[0];
   if(arr[lang] != nullptr){
     ret_str = arr[lang];
-  } // } else{
-  //   Serial.println(">GetString OverBounds Detected");
-  // }
+  }
   return ret_str;
 }
 //Shorthand:

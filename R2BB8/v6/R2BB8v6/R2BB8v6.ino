@@ -9,10 +9,22 @@
 
 #include "BB8_Strings.h" //       - Localized Strings
 
+EraseButton = ScreenRegion(0,HAL.HEIGHT-11, HAL.WIDTH, HAL.HEIGHT);
+PaintRegion = ScreenRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT);
+
+ScreenRegion[] buttons = {
+  ScreenRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE);
+  ScreenRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE);
+  ScreenRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE);
+  ScreenRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE);
+  ScreenRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE);
+  ScreenRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE);
+}
+
+
 void setup(void) {
   Serial.begin(9600);
   //Initialize Data Structures:
-
   populateStrings();
 
   init_HAL();
@@ -23,59 +35,50 @@ void setup(void) {
 }
 
 void loop() {
-  TSPoint p = HAL.ts.getPoint();
+  ScreenPosition touch = HAL.touchPosition();
 
-  pinMode(XM, OUTPUT);
-  pinMode(YP, OUTPUT);
-
-  if (p.z > MINPRESSURE && p.z < MAXPRESSURE) {
-
-    if (p.y < (TS_MINY-5)) {
-      Serial.println("erase");
-      HAL.tft.fillRect(0, BOXSIZE, HAL.tft.width(), HAL.tft.height()-BOXSIZE, BLACK);
-    }
-    // scale from 0->1023 to tft.width
-    p.x = map(p.x, TS_MINX, TS_MAXX, HAL.tft.width(), 0);
-    p.y = map(p.y, TS_MINY, TS_MAXY, HAL.tft.height(), 0);
-    /*
-    Serial.print("("); Serial.print(p.x);
-    Serial.print(", "); Serial.print(p.y);
-    Serial.println(")");
-    */
-    if (p.y < BOXSIZE) {
-       oldcolor = currentcolor;
-
-       if (p.x < BOXSIZE) {
-         currentcolor = RED;
-         HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*2) {
-         currentcolor = YELLOW;
-         HAL.tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*3) {
-         currentcolor = GREEN;
-         HAL.tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*4) {
-         currentcolor = CYAN;
-         HAL.tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*5) {
-         currentcolor = BLUE;
-         HAL.tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, WHITE);
-       } else if (p.x < BOXSIZE*6) {
-         currentcolor = MAGENTA;
-         HAL.tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, WHITE);
-       }
-
-       if (oldcolor != currentcolor) {
-          if (oldcolor == RED) HAL.tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
-          if (oldcolor == YELLOW) HAL.tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
-          if (oldcolor == GREEN) HAL.tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
-          if (oldcolor == CYAN) HAL.tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
-          if (oldcolor == BLUE) HAL.tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
-          if (oldcolor == MAGENTA) HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
-       }
-    }
-    if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
-      HAL.tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
-    }
+  if(EraseButton.contains(touch)){
+    HAL.eraseRegion(PaintRegion);
   }
+
+  for(auto& button : buttons){
+
+  }
+
+  if (p.y < BOXSIZE) {
+     oldcolor = currentcolor;
+
+     if (p.x < BOXSIZE) {
+       currentcolor = RED;
+       HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
+     } else if (p.x < BOXSIZE*2) {
+       currentcolor = YELLOW;
+       HAL.tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, WHITE);
+     } else if (p.x < BOXSIZE*3) {
+       currentcolor = GREEN;
+       HAL.tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, WHITE);
+     } else if (p.x < BOXSIZE*4) {
+       currentcolor = CYAN;
+       HAL.tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, WHITE);
+     } else if (p.x < BOXSIZE*5) {
+       currentcolor = BLUE;
+       HAL.tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, WHITE);
+     } else if (p.x < BOXSIZE*6) {
+       currentcolor = MAGENTA;
+       HAL.tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, WHITE);
+     }
+
+     if (oldcolor != currentcolor) {
+        if (oldcolor == RED) HAL.tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
+        if (oldcolor == YELLOW) HAL.tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
+        if (oldcolor == GREEN) HAL.tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
+        if (oldcolor == CYAN) HAL.tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
+        if (oldcolor == BLUE) HAL.tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
+        if (oldcolor == MAGENTA) HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
+     }
+  }
+  if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
+    HAL.tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
+  }
+
 }
