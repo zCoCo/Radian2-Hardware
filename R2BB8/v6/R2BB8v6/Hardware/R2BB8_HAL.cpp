@@ -32,8 +32,8 @@ void R2BB8_HAL::eraseRegion(int16_t x_ul, int16_t y_ul,  int16_t w, int16_t h){
   tft.fillRect(x_ul, y_ul, w, h, BLACK);
 }
 // Erases the Given Region of the Display
-void R2BB8_HAL::eraseRegion(ScreenRegion reg){
-  R2BB8_HAL::eraseRegion(reg.upperLeft.x, reg.upperLeft.y, reg.width, reg.height);
+void R2BB8_HAL::eraseRegion(RectRegion* reg){
+  R2BB8_HAL::eraseRegion(reg->upperLeft.x, reg->upperLeft.y, reg->width, reg->height);
 }
 
 ScreenPosition R2BB8_HAL::touchPosition(void){
@@ -49,7 +49,7 @@ ScreenPosition R2BB8_HAL::touchPosition(void){
 
     return ScreenPosition(p.x,p.y);
   } else{
-    return R2BB8_HAL::NotTouching;  // Touch is Invalid if insufficient or too
+    return NotTouching;  // Touch is Invalid if insufficient or too
                                    //  much Pressure
   }
 }

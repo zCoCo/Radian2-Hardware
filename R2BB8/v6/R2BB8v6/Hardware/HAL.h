@@ -8,7 +8,6 @@
 #include "Arduino.h"
 #include <Adafruit_TFTLCD.h> // For Communicating with the ILI9341
 #include <TouchScreen.h> // For Reading Resistive Touchscreen Data
-#include "../Hardware/R2BB8_HAL.h"
 
 #define YP A3  // must be an analog pin, use "An" notation!
 #define XM A2  // must be an analog pin, use "An" notation!
@@ -26,6 +25,8 @@
 #define LCD_RD A0
 #define LCD_RESET A7
 
+#include "../Hardware/R2BB8_HAL.h"
+
 Adafruit_TFTLCD tft(LCD_CS, LCD_CD, LCD_WR, LCD_RD, LCD_RESET);
 TouchScreen ts(XP, YP, XM, YM, 300); // 300-Ohms Across X-Plate (~500 across Y)
 R2BB8_HAL HAL(&tft, &ts);
@@ -40,7 +41,7 @@ int oldcolor, currentcolor;
 void init_HAL(){
 
   delay(500); // -- DISPLAY DOESN'T WORK IF NOT GIVEN TIME TO INITIALIZE W/PWR BEFORE TALKING.
-  
+
   HAL.init();
   HAL.erase();
 

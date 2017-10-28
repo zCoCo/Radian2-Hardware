@@ -2,23 +2,25 @@
 // If using the Arduino shield, use the tftpaint_shield.pde sketch instead!
 // DOES NOT CURRENTLY WORK ON ARDUINO LEONARDO
 
-#include <Adafruit_GFX.h>//       - Core graphics library
-#include "./Graphics/Colors.h"//  - Predefined 16-Bit Color Macros
+#include <Adafruit_GFX.h>//         - Core graphics library
+#include "./Graphics/Colors.h"//    - Predefined 16-Bit Color Macros
 
-#include "./Hardware/HAL.h"//     - Hardware Abstraction Layer
+#include "./Hardware/HAL.h"//       - Hardware Abstraction Layer
 
-#include "BB8_Strings.h" //       - Localized Strings
+#include "BB8_Strings.h" //         - Localized Strings
 
-EraseButton = ScreenRegion(0,HAL.HEIGHT-11, HAL.WIDTH, HAL.HEIGHT);
-PaintRegion = ScreenRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT);
+#include "./Menu/ButtonItem.h"//- Buttons.
 
-ScreenRegion[] buttons = {
-  ScreenRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE);
-  ScreenRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE);
-  ScreenRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE);
-  ScreenRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE);
-  ScreenRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE);
-  ScreenRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE);
+EraseButton = RectRegion(0,HAL.HEIGHT-11, HAL.WIDTH, HAL.HEIGHT);
+PaintRegion = RectRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT);
+
+ButtonItem[] buttons* = {
+  new ButtonItem(new ScreenRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE), RED),
+  new ButtonItem(new ScreenRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE), YELLOW),
+  new ButtonItem(new ScreenRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE), GREEN),
+  new ButtonItem(new ScreenRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE), CYAN),
+  new ButtonItem(new ScreenRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE), BLUE),
+  new ButtonItem(new ScreenRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE), MAGENTA),
 }
 
 
@@ -42,43 +44,46 @@ void loop() {
   }
 
   for(auto& button : buttons){
-
+    button->update(touch);
+    button->draw();
   }
 
-  if (p.y < BOXSIZE) {
-     oldcolor = currentcolor;
-
-     if (p.x < BOXSIZE) {
-       currentcolor = RED;
-       HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
-     } else if (p.x < BOXSIZE*2) {
-       currentcolor = YELLOW;
-       HAL.tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, WHITE);
-     } else if (p.x < BOXSIZE*3) {
-       currentcolor = GREEN;
-       HAL.tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, WHITE);
-     } else if (p.x < BOXSIZE*4) {
-       currentcolor = CYAN;
-       HAL.tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, WHITE);
-     } else if (p.x < BOXSIZE*5) {
-       currentcolor = BLUE;
-       HAL.tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, WHITE);
-     } else if (p.x < BOXSIZE*6) {
-       currentcolor = MAGENTA;
-       HAL.tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, WHITE);
-     }
-
-     if (oldcolor != currentcolor) {
-        if (oldcolor == RED) HAL.tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
-        if (oldcolor == YELLOW) HAL.tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
-        if (oldcolor == GREEN) HAL.tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
-        if (oldcolor == CYAN) HAL.tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
-        if (oldcolor == BLUE) HAL.tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
-        if (oldcolor == MAGENTA) HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
-     }
-  }
-  if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
-    HAL.tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
-  }
+  //
+  //
+  // if (p.y < BOXSIZE) {
+  //    oldcolor = currentcolor;
+  //
+  //    if (p.x < BOXSIZE) {
+  //      currentcolor = RED;
+  //      HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
+  //    } else if (p.x < BOXSIZE*2) {
+  //      currentcolor = YELLOW;
+  //      HAL.tft.drawRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, WHITE);
+  //    } else if (p.x < BOXSIZE*3) {
+  //      currentcolor = GREEN;
+  //      HAL.tft.drawRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, WHITE);
+  //    } else if (p.x < BOXSIZE*4) {
+  //      currentcolor = CYAN;
+  //      HAL.tft.drawRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, WHITE);
+  //    } else if (p.x < BOXSIZE*5) {
+  //      currentcolor = BLUE;
+  //      HAL.tft.drawRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, WHITE);
+  //    } else if (p.x < BOXSIZE*6) {
+  //      currentcolor = MAGENTA;
+  //      HAL.tft.drawRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, WHITE);
+  //    }
+  //
+  //    if (oldcolor != currentcolor) {
+  //       if (oldcolor == RED) HAL.tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
+  //       if (oldcolor == YELLOW) HAL.tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
+  //       if (oldcolor == GREEN) HAL.tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
+  //       if (oldcolor == CYAN) HAL.tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
+  //       if (oldcolor == BLUE) HAL.tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
+  //       if (oldcolor == MAGENTA) HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
+  //    }
+  // }
+  // if (((p.y-PENRADIUS) > BOXSIZE) && ((p.y+PENRADIUS) < tft.height())) {
+  //   HAL.tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
+  // }
 
 }

@@ -2,6 +2,8 @@
 #ifndef _BB8_COLORS_H
 #define _BB8_COLORS_H
 
+//Special Color Code Indicating No Color Should be Used for the Given Object
+#define NO_COLOR 0xFFFE
 
 #define	BLACK   0x0000
 #define WHITE   0xFFFF

@@ -14,11 +14,18 @@ class ScreenPosition {
       x = x_;
       y = y_;
     }
+    ~ScreenPosition(void){
+      delete& x;
+      delete& y;
+    }
 
-    bool operator==(ScreenPosition p1){
+    ScreenPosition operator+(ScreenPosition& p1){
+      return ScreenPosition(x+p1.x, y+p1.y);
+    }
+    bool operator==(ScreenPosition& p1){
       return  ((p1.x == x) && (p1.y == y));
     }
-    bool operator!=(ScreenPosition){
+    bool operator!=(ScreenPosition& p1){
       return  ((p1.x != x) || (p1.y != y));
     }
 

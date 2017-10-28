@@ -5,19 +5,16 @@
 #ifndef _CLASS_MENUITEM_H
 #define _CLASS_MENUITEM_H
 
+#include "../Util/ScreenPosition.h"
+#include "../Util/ScreenRegion.h"
+#include "../Graphics/GraphicsObject.h"
 
 class MenuItem {
   public:
-    ScreenRegion* region;//   - Region of the Screen Occupied by this MenuItem
-    GraphicsObject[] shapes*;// -GraphicsObjects which Define this MenuItem
+    ScreenRegion* region;//   - Region of the Screen Occupied by this MenuItem (clickable region)
+    GraphicsObject** shapes;// -GraphicsObjects which Define this MenuItem
 
     void (*action)();//       - Action to Perform when Clicked (externally settable)
-
-    ////// TODO TODO TODO:
-    /*
-      - MenuItem CenterPosition will be defined by its ScreenRegion.
-      - Create GraphicsObject Abs which Contains a Region and a draw function and a color or some other parameters like fill and outline
-    */
 
     // Constructs an Null/Empty ScreenRegion
     MenuItem(void){ };
@@ -37,6 +34,5 @@ class MenuItem {
       }
     }
 };
-
 
 #endif //_CLASS_MENUITEM_H

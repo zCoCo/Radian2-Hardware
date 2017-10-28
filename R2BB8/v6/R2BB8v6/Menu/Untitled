@@ -1,0 +1,13 @@
+#include "Arduino.h"
+
+#include "TouchScreen.h"
+
+ScreenPosition ScreenPosition::operator+(ScreenPositon& p1){
+  return ScreenPosition(x+p1.x, y+p1.y);
+}
+bool ScreenPosition::operator==(ScreenPosition& p1){
+  return  ((p1.x == x) && (p1.y == y));
+}
+bool ScreenPosition::operator!=(ScreenPosition& p1){
+  return  ((p1.x != x) || (p1.y != y));
+}

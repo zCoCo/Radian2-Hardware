@@ -1,10 +1,11 @@
-#include "ScreenRegion.h"
 /****
  * Defines a Rectangular Region on the Screen
 ****/
 #ifndef _CLASS_RECTREGION_H
 #define _CLASS_RECTREGION_H
 
+#include "ScreenRegion.h"
+#include "ScreenPosition.h"
 
 class RectRegion : public ScreenRegion{
   public:
@@ -14,7 +15,6 @@ class RectRegion : public ScreenRegion{
 
     // Constructs an Null/Empty Rectangular Region
     RectRegion(void){
-      centerPosition = 0;
       upperLeft = ScreenPosition(0,0);
       width = 0;
       height = 0;
@@ -26,16 +26,15 @@ class RectRegion : public ScreenRegion{
       upperLeft = ScreenPosition(x_ul, y_ul);
       width = w;
       height = h;
-      centerPosition = ScreenPosition;
     }
 
     // Constructs a Region of the Screen from the Position of its Center Position,
     // width and height.
-    static RectRegion constructFromCenter(int16_t xc, int16_t yc, int16_t w, int16_t h){
-      return RectRegion((xc - w/2), (yc - h/2), w, h);
+    static RectRegion* constructFromCenter(int16_t xc, int16_t yc, int16_t w, int16_t h){
+      return new RectRegion((xc - w/2), (yc - h/2), w, h);
     }
-    static RectRegion constructFromCenter(ScreenPosition& cp, int16_t w, int16_t h){
-      return RectRegion((cp.x - w/2), (cp.y - h/2), w, h);
+    static RectRegion* constructFromCenter(ScreenPosition& cp, int16_t w, int16_t h){
+      return new RectRegion((cp.x - w/2), (cp.y - h/2), w, h);
     }
 
     // Returns the Position of the Center of this Region.
@@ -43,10 +42,10 @@ class RectRegion : public ScreenRegion{
       return new ScreenPosition(upperLeft.x + width/2, upperLeft.y + height/2);
     }
 
-    ////// TODO TODO TODO:
-    /*
-      - Make ScreenPosition operator+(&) override
-    */
+    // Translate the Given Screen Region by Dx, Dy
+    virtual void translate(int16_t Dx, int16_t Dy){
+      upperLeft = ScreenPosition(upperLeft.x+Dx, upperLeft.y+Dy);
+    }
 
     // Returns Whether the given Point (x,y) is Contained within this Region.
     bool contains(int16_t x, int16_t y){
@@ -62,12 +61,12 @@ class RectRegion : public ScreenRegion{
       return ( (y >= upperLeft.y) && (y <= (upperLeft.y+height)) );
     }
 
-    bool operator==(ScreenRegion& r1){
+    bool operator==(RectRegion& r1){
       return  ( (r1.upperLeft == upperLeft) &&
                 (r1.width == width) &&
                 (r1.height == height) );
     }
-    bool operator!=(ScreenRegion& r1){
+    bool operator!=(RectRegion& r1){
       return  ( (r1.upperLeft != upperLeft) ||
                 (r1.width != width) ||
                 (r1.height != height) );

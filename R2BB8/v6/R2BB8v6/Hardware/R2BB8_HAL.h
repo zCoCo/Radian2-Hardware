@@ -9,7 +9,7 @@
 #include <TouchScreen.h> // For Reading Resistive Touchscreen Data
 
 #include "../Util/ScreenPosition.h"
-#include "../Util/ScreenRegion.h"
+#include "../Util/RectRegion.h"
 
 #define MINPRESSURE 10
 #define MAXPRESSURE 1000
@@ -31,7 +31,7 @@ class R2BB8_HAL{
 
     // ScreenPosition Returned when No Touch is Registered by the Screen or there
     // is an Invalid Position.
-    static ScreenPosition NotTouching = ScreenPosition(-1,-1);
+    ScreenPosition NotTouching = ScreenPosition(-1,-1);
 
     R2BB8_HAL(Adafruit_TFTLCD* tft_, TouchScreen* ts_) : tft(*tft_), ts(*ts_){
       tft.setRotation(1); // Set Rotation Here
@@ -54,7 +54,7 @@ class R2BB8_HAL{
     // Width w and Height h.
     void              eraseRegion(int16_t x_ul, int16_t y_ul,  int16_t w, int16_t h);
     // Erases the Given Region of the Display
-    void              eraseRegion(ScreenRegion reg);
+    void              eraseRegion(RectRegion* reg);
 
     // Returns the Screen Position of the Current Touch Point
     ScreenPosition    touchPosition();
