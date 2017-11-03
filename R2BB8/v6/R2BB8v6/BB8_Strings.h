@@ -52,15 +52,22 @@ const __FlashStringHelper* STR__X_Position[NUM_LANG];
 const __FlashStringHelper* STR__Y_Position[NUM_LANG];
 const __FlashStringHelper* STR__Z_Position[NUM_LANG];
 
+const __FlashStringHelper* STR__Job_Percentage[NUM_LANG];
+const __FlashStringHelper* STR__Time_Remaining[NUM_LANG];
+
+const __FlashStringHelper* STR__Hotend_Temp[NUM_LANG];
+
 // This function exists because #PSTR/F (inside #SS) must be called from within
 // a function.
 void populateStrings(){
   static bool populated = 0;
   //Name of Language at Index
   if(!populated){
+    /////////////////////////////////////////////////////////////// - META DATA
     STR__LANGUAGE_NAME[LID_ENGLISH] = SS("ENGLISH");
     STR__LANGUAGE_NAME[LID_SPANISH] = SS("ESPANOL");
 
+    ///////////////////////////////////////////////////////////// - POSITIONING
     STR__X_Position[LID_ENGLISH] = SS("X Position");
     STR__X_Position[LID_SPANISH] = SS("Posicion X");
 
@@ -69,6 +76,17 @@ void populateStrings(){
 
     STR__Z_Position[LID_ENGLISH] = SS("Z Position");
     STR__Z_Position[LID_SPANISH] = SS("Posicion Z");
+
+    //////////////////////////////////////////////////////////// - PROJECT DATA
+    STR__Job_Percentage[LID_ENGLISH] = SS("Job Percentage");
+    STR__Job_Percentage[LID_SPANISH] = SS("Porcentaje de Trabajo");
+
+    STR__Time_Remaining[LID_ENGLISH] = SS("Time Remaining");
+    STR__Time_Remaining[LID_SPANISH] = SS("Tiempo Restante");
+
+    ///////////////////////////////////////////////////////////// - 3D PRINTING
+    STR__Hotend_Temp[LID_ENGLISH] = SS("Hotend Temperature");
+    STR__Hotend_Temp[LID_SPANISH] = SS("Temperatura de Hotend");
     populated = 1;
   }
 };
