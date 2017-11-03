@@ -47,6 +47,8 @@ class RectRegion : public ScreenRegion{
       upperLeft = ScreenPosition(upperLeft.x+Dx, upperLeft.y+Dy);
     }
 
+    using ScreenRegion::contains;
+
     // Returns Whether the given Point (x,y) is Contained within this Region.
     bool contains(int16_t x, int16_t y){
       return ( containsX(x) && containsY(y) );

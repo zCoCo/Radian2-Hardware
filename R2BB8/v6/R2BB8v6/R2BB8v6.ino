@@ -2,6 +2,8 @@
 // If using the Arduino shield, use the tftpaint_shield.pde sketch instead!
 // DOES NOT CURRENTLY WORK ON ARDUINO LEONARDO
 
+#include "./Util/UtilMacros.h"
+
 #include <Adafruit_GFX.h>//         - Core graphics library
 #include "./Graphics/Colors.h"//    - Predefined 16-Bit Color Macros
 
@@ -11,17 +13,17 @@
 
 #include "./Menu/ButtonItem.h"//- Buttons.
 
-EraseButton = RectRegion(0,HAL.HEIGHT-11, HAL.WIDTH, HAL.HEIGHT);
-PaintRegion = RectRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT);
+RectRegion EraseButton = RectRegion(0,HAL.HEIGHT-11, HAL.WIDTH, HAL.HEIGHT);
+RectRegion PaintRegion = RectRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT);
 
-ButtonItem[] buttons* = {
-  new ButtonItem(new ScreenRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE), RED),
-  new ButtonItem(new ScreenRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE), YELLOW),
-  new ButtonItem(new ScreenRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE), GREEN),
-  new ButtonItem(new ScreenRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE), CYAN),
-  new ButtonItem(new ScreenRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE), BLUE),
-  new ButtonItem(new ScreenRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE), MAGENTA),
-}
+MenuItem* buttons[] = {
+  new ButtonItem(new RectRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE), RED),
+  new ButtonItem(new RectRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE), YELLOW),
+  new ButtonItem(new RectRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE), GREEN),
+  new ButtonItem(new RectRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE), CYAN),
+  new ButtonItem(new RectRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE), BLUE),
+  new ButtonItem(new RectRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE), MAGENTA)
+};
 
 
 void setup(void) {
@@ -39,8 +41,8 @@ void setup(void) {
 void loop() {
   ScreenPosition touch = HAL.touchPosition();
 
-  if(EraseButton.contains(touch)){
-    HAL.eraseRegion(PaintRegion);
+  if( EraseButton.contains(touch) ){
+    HAL.eraseRegion(&PaintRegion);
   }
 
   for(auto& button : buttons){

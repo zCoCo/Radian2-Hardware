@@ -6,6 +6,7 @@
 
 #include "MenuItem.h"
 #include "../Graphics/Colors.h"
+#include "../Graphics/GO_Rectangle.h"
 
 class ButtonItem : public MenuItem{
   public:
@@ -14,17 +15,22 @@ class ButtonItem : public MenuItem{
     // Constructs a Standard Interactive Button in the Given Region
     ButtonItem(RectRegion* reg_){
       this->region = reg_;
-      this->shapes = {
-        new GO_Rectangle(reg_, NO_COLOR, BLUE);
+      GraphicsObject* shps[] = {
+        new GO_Rectangle(reg_, NO_COLOR, BLUE)
       };
+      this->num_shapes = 1;
+      memcpy(this->shapes, shps, sizeof(shps));
+
     };
     // Constructs a Interactive Button in the Given Region with special fill
     // color fc.
     ButtonItem(RectRegion* reg_, uint16_t fc){
       this->region = reg_;
-      this->shapes = {
-        new GO_Rectangle(reg_, NO_COLOR, fc);
+      GraphicsObject* shps[] = {
+        new GO_Rectangle(reg_, NO_COLOR, fc)
       };
+      this->num_shapes = 1;
+      memcpy(this->shapes, shps, sizeof(shps));
     };
 
     // Updates the Screen Region Containing this Menu Item if Touched.

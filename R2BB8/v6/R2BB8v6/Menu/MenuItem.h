@@ -12,7 +12,8 @@
 class MenuItem {
   public:
     ScreenRegion* region;//   - Region of the Screen Occupied by this MenuItem (clickable region)
-    GraphicsObject** shapes;// -GraphicsObjects which Define this MenuItem
+    GraphicsObject** shapes;//- GraphicsObjects which Define this MenuItem
+    byte num_shapes = 0; ///  - Number of Shapes in this MenuItem
 
     void (*action)();//       - Action to Perform when Clicked (externally settable)
 
@@ -21,8 +22,8 @@ class MenuItem {
 
     // Draws this MenuItem
     void draw(){
-      for(auto& shape : shapes){
-        shape->draw();
+      for(int i=0; i<num_shapes; i++){
+        shapes[i]->draw();
       }
     }
 

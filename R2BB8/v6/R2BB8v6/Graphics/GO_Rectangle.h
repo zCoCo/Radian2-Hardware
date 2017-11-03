@@ -21,17 +21,18 @@ class GO_Rectangle : public GraphicsObject{
 
     // Draw the Graphics Object onto the Screen
     void draw(){
+      RectRegion* reg = ((RectRegion*) shape);
       if(color_fill != NO_COLOR){
         HAL.tft.fillRect(
-          shape->upperLeft.x, shape->upperLeft.y,
-          shape->width, shape->height,
+          reg->upperLeft.x, reg->upperLeft.y,
+          reg->width, reg->height,
           color_fill
         );
       }
       if(color_outline != NO_COLOR){
         HAL.tft.drawRect(
-          shape->upperLeft.x, shape->upperLeft.y,
-          shape->width, shape->height,
+          reg->upperLeft.x, reg->upperLeft.y,
+          reg->width, reg->height,
           color_outline
         );
       }
