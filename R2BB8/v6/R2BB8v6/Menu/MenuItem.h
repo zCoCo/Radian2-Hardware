@@ -9,10 +9,13 @@
 #include "../Util/ScreenRegion.h"
 #include "../Graphics/GraphicsObject.h"
 
+#define _MENUITEM_MAX_NUM_SHAPES 4
+
 class MenuItem {
   public:
     ScreenRegion* region;//   - Region of the Screen Occupied by this MenuItem (clickable region)
-    GraphicsObject** shapes;//- GraphicsObjects which Define this MenuItem
+    // GraphicsObjects which Define this MenuItem:
+    GraphicsObject* shapes[_MENUITEM_MAX_NUM_SHAPES];
     byte num_shapes = 0; ///  - Number of Shapes in this MenuItem
 
     void (*action)();//       - Action to Perform when Clicked (externally settable)
