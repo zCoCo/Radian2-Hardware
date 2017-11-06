@@ -21,8 +21,8 @@ class R2BB8_HAL{
 
     // Store these so this hardware data can be changed without changing all
     // code using this data.
-    int8_t WIDTH;//           - Width of Screen
-    int8_t HEIGHT;//          - Height of Screen
+    int16_t WIDTH;//           - Width of Screen
+    int16_t HEIGHT;//          - Height of Screen
 
     byte NUM_GRID_X = 4;//    - Number of Grid Cells in X Direction
     float NUM_GRID_Y = 3.5;// - Number of Grid Cells in Y Direction
@@ -34,7 +34,7 @@ class R2BB8_HAL{
     ScreenPosition NotTouching = ScreenPosition(-1,-1);
 
     R2BB8_HAL(Adafruit_TFTLCD* tft_, TouchScreen* ts_) : tft(*tft_), ts(*ts_){
-      tft.setRotation(1); // Set Rotation Here
+      // tft.setRotation(1); // Set Rotation Here
       WIDTH = tft.width();
       HEIGHT = tft.height();
       GRID_WIDTH = float(tft.width()) / float(NUM_GRID_X);

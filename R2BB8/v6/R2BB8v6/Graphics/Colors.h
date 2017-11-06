@@ -2,6 +2,9 @@
 #ifndef _BB8_COLORS_H
 #define _BB8_COLORS_H
 
+//System-Wide Background Color
+#define BGCOLOR 0xDAED
+
 //Special Color Code Indicating No Color Should be Used for the Given Object
 #define NO_COLOR 0xFFFE
 

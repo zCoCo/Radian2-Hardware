@@ -53,7 +53,8 @@ void init_HAL(){
   HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
 
   HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
-  currentcolor = RED;
+
+  pinMode(13,OUTPUT);
 }
 
 

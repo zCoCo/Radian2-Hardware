@@ -6,49 +6,66 @@
 
 #include <Adafruit_GFX.h>//         - Core graphics library
 #include "./Graphics/Colors.h"//    - Predefined 16-Bit Color Macros
-
+//
 #include "./Hardware/HAL.h"//       - Hardware Abstraction Layer
 
 #include "BB8_Strings.h" //         - Localized Strings
 
-#include "./Menu/ButtonItem.h"//- Buttons.
+#include "./Menu/ButtonItem.h"//    - Buttons.
 
-RectRegion EraseButton = RectRegion(0,HAL.HEIGHT-11, HAL.WIDTH, HAL.HEIGHT);
-RectRegion PaintRegion = RectRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT);
+RectRegion* EraseButton = new RectRegion(0,HAL.HEIGHT-11, HAL.WIDTH, 11);
+RectRegion* PaintRegion = new RectRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT-BOXSIZE);
 
-MenuItem* buttons[] = {
-  new ButtonItem(new RectRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE), RED),
-  new ButtonItem(new RectRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE), YELLOW),
-  new ButtonItem(new RectRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE), GREEN),
-  new ButtonItem(new RectRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE), CYAN),
-  new ButtonItem(new RectRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE), BLUE),
-  new ButtonItem(new RectRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE), MAGENTA)
-};
+// MenuItem* buttons[] = {
+//   new ButtonItem(new RectRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE), RED),
+//   new ButtonItem(new RectRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE), YELLOW),
+//   new ButtonItem(new RectRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE), GREEN),
+//   new ButtonItem(new RectRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE), CYAN),
+//   new ButtonItem(new RectRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE), BLUE),
+//   new ButtonItem(new RectRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE), MAGENTA)
+// };
 
 
 void setup(void) {
   Serial.begin(9600);
+  Serial.println("> Begin");
   //Initialize Data Structures:
   populateStrings();
+                                                                                Serial.println("Strings Initialized.");
 
   init_HAL();
+                                                                                Serial.println("HAL Initialized.");
+                                                                                Serial.print("Screen Size:");
+                                                                                Serial.print(HAL.tft.width());
+                                                                                Serial.print("x");
+                                                                                Serial.println(HAL.tft.height());
 
   HAL.tft.setCursor(50, 50);
   HAL.tft.setTextColor(GREEN);  HAL.tft.setTextSize(2);
   HAL.tft.println(GSC(STR__LANGUAGE_NAME));
+                                                                                Serial.println("Language Named.");
+
+  delay(1000);
 }
 
 void loop() {
   ScreenPosition touch = HAL.touchPosition();
 
-  if( EraseButton.contains(touch) ){
-    HAL.eraseRegion(&PaintRegion);
-  }
+  delay(1000);
+  HAL.eraseRegion(PaintRegion);
+  HAL.tft.setCursor(50, 50);
+  HAL.tft.setTextColor(0xFFFF-BGCOLOR);  HAL.tft.setTextSize(2);
+  HAL.tft.println(String(millis()));
 
-  for(auto& button : buttons){
-    button->update(touch);
-    button->draw();
-  }
+
+  // if( EraseButton.contains(touch) ){
+  //   HAL.eraseRegion(PaintRegion);
+  // }
+
+  // for(auto& button : buttons){
+  //   button->update(touch);
+  //   button->draw();
+  // }
 
   //
   //

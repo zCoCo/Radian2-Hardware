@@ -4,6 +4,7 @@
 
 #include "Arduino.h"
 #include "R2BB8_HAL.h"
+#include "../Graphics/Colors.h"
 
 #include "HAL.h"
 
@@ -20,16 +21,17 @@ void R2BB8_HAL::init(void){
   }
 
   tft.begin(identifier);
+
 }
 
 void R2BB8_HAL::erase(void){
-  tft.fillScreen(BLACK);
+  tft.fillScreen(BGCOLOR);
 }
 
 // Erases a Region of the Display with Upper Left Corner (x_ul,y_ul),
 // Width w and Height h.
 void R2BB8_HAL::eraseRegion(int16_t x_ul, int16_t y_ul,  int16_t w, int16_t h){
-  tft.fillRect(x_ul, y_ul, w, h, BLACK);
+  tft.fillRect(x_ul, y_ul, w, h, BGCOLOR);
 }
 // Erases the Given Region of the Display
 void R2BB8_HAL::eraseRegion(RectRegion* reg){
@@ -37,7 +39,9 @@ void R2BB8_HAL::eraseRegion(RectRegion* reg){
 }
 
 ScreenPosition R2BB8_HAL::touchPosition(void){
+  digitalWrite(13, HIGH);
   TSPoint p = ts.getPoint();
+  digitalWrite(13,LOW);
 
   pinMode(XM, OUTPUT);
   pinMode(YP, OUTPUT);
@@ -50,6 +54,6 @@ ScreenPosition R2BB8_HAL::touchPosition(void){
     return ScreenPosition(p.x,p.y);
   } else{
     return NotTouching;  // Touch is Invalid if insufficient or too
-                                   //  much Pressure
+                        //  much Pressure
   }
 }

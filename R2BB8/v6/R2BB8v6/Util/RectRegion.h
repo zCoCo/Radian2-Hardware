@@ -14,16 +14,18 @@ class RectRegion : public ScreenRegion{
     int16_t height;
 
     // Constructs an Null/Empty Rectangular Region
-    RectRegion(void){
-      upperLeft = ScreenPosition(0,0);
+    RectRegion(void)
+    : upperLeft(0,0)
+    {
       width = 0;
       height = 0;
     }
 
     // Constructs a Rectangular Region of the Screen from the Position of its
     // UpperLeft Corner, width and height.
-    RectRegion(int16_t x_ul, int16_t y_ul, int16_t w, int16_t h){
-      upperLeft = ScreenPosition(x_ul, y_ul);
+    RectRegion(int16_t x_ul, int16_t y_ul, int16_t w, int16_t h)
+    : upperLeft(x_ul, y_ul)
+    {
       width = w;
       height = h;
     }
