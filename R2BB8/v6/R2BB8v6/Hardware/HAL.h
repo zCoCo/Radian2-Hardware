@@ -45,14 +45,14 @@ void init_HAL(){
   HAL.init();
   HAL.erase();
 
-  HAL.tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
-  HAL.tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
-  HAL.tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
-  HAL.tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
-  HAL.tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
-  HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
-
-  HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
+  // HAL.tft.fillRect(0, 0, BOXSIZE, BOXSIZE, RED);
+  // HAL.tft.fillRect(BOXSIZE, 0, BOXSIZE, BOXSIZE, YELLOW);
+  // HAL.tft.fillRect(BOXSIZE*2, 0, BOXSIZE, BOXSIZE, GREEN);
+  // HAL.tft.fillRect(BOXSIZE*3, 0, BOXSIZE, BOXSIZE, CYAN);
+  // HAL.tft.fillRect(BOXSIZE*4, 0, BOXSIZE, BOXSIZE, BLUE);
+  // HAL.tft.fillRect(BOXSIZE*5, 0, BOXSIZE, BOXSIZE, MAGENTA);
+  //
+  // HAL.tft.drawRect(0, 0, BOXSIZE, BOXSIZE, WHITE);
 
   pinMode(13,OUTPUT);
 }

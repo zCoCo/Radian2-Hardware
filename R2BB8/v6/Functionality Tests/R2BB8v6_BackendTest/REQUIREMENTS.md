@@ -1,0 +1,5 @@
+- avrdude (to upload program)
+- Arduino IDE (to compile changes)
+- Copy Adafruit_GFX folder in ./lib/ to Arduino libraries directory (for compiling)
+- Copy Adafruit_TFTLCD folder in ./lib/ to Arduino libraries directory (for compiling)
+- Copy TouchScreen folder in ./lib/ to Arduino libraries directory (for compiling)

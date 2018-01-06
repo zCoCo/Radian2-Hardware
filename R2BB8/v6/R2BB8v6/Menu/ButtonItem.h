@@ -20,7 +20,6 @@ class ButtonItem : public MenuItem{
       };
       this->num_shapes = 1;
       memcpy(this->shapes, shps, sizeof(shps));
-
     };
     // Constructs a Interactive Button in the Given Region with special fill
     // color fc.
@@ -34,19 +33,29 @@ class ButtonItem : public MenuItem{
     };
 
     // Updates the Screen Region Containing this Menu Item if Touched.
-    void update(ScreenPosition& touch_point){
-      if(this->region->contains(touch_point)){
-        // Toggle Outline Color When Clicked:
-        if(this->shapes[0]->color_outline == NO_COLOR){
+    void update(ScreenPosition* touch_point){
+      // Perform Base Update:
+      MenuItem::update(touch_point);
+
+      // Toggle Outline Color While Being Clicked:
+      if(this->being_touched){
+
+        if(this->shapes[0]->color_outline != WHITE){
+          // Touched for First Time in Series
           this->shapes[0]->color_outline = WHITE;
-        } else{
-          this->shapes[0]->color_outline = NO_COLOR;
+          this->draw(); // Send One Draw Update to Make this Change
         }
 
-        // Perform Associated Action:
-        this->action();
-      }
-    }
+      } else{
+
+        if(this->shapes[0]->color_outline != NO_COLOR){
+          // Touched for First Time in Series
+          this->shapes[0]->color_outline = NO_COLOR;
+          this->draw(); // Send One Draw Update to Make this Change
+        }
+
+      } // being_touched?
+    } // #update
 };
 
 #endif //_CLASS_BUTTONITEM_H

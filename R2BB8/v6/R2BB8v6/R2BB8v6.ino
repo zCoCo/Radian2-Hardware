@@ -15,16 +15,22 @@
 
 RectRegion* EraseButton = new RectRegion(0,HAL.HEIGHT-11, HAL.WIDTH, 11);
 RectRegion* PaintRegion = new RectRegion(0,BOXSIZE, HAL.WIDTH, HAL.HEIGHT-BOXSIZE);
+RectRegion* TextRegion = new RectRegion(0,BOXSIZE+25, HAL.WIDTH, 50);
 
-// MenuItem* buttons[] = {
-//   new ButtonItem(new RectRegion(BOXSIZE*0,BOXSIZE, BOXSIZE, BOXSIZE), RED),
-//   new ButtonItem(new RectRegion(BOXSIZE*1,BOXSIZE, BOXSIZE, BOXSIZE), YELLOW),
-//   new ButtonItem(new RectRegion(BOXSIZE*2,BOXSIZE, BOXSIZE, BOXSIZE), GREEN),
-//   new ButtonItem(new RectRegion(BOXSIZE*3,BOXSIZE, BOXSIZE, BOXSIZE), CYAN),
-//   new ButtonItem(new RectRegion(BOXSIZE*4,BOXSIZE, BOXSIZE, BOXSIZE), BLUE),
-//   new ButtonItem(new RectRegion(BOXSIZE*5,BOXSIZE, BOXSIZE, BOXSIZE), MAGENTA)
-// };
+MenuItem* buttons[] = {
+  new ButtonItem(new RectRegion(BOXSIZE*0,0, BOXSIZE, BOXSIZE), RED),
+  new ButtonItem(new RectRegion(BOXSIZE*1,0, BOXSIZE, BOXSIZE), YELLOW),
+  new ButtonItem(new RectRegion(BOXSIZE*2,0, BOXSIZE, BOXSIZE), GREEN),
+  new ButtonItem(new RectRegion(BOXSIZE*3,0, BOXSIZE, BOXSIZE), CYAN),
+  new ButtonItem(new RectRegion(BOXSIZE*4,0, BOXSIZE, BOXSIZE), BLUE),
+  new ButtonItem(new RectRegion(BOXSIZE*5,0, BOXSIZE, BOXSIZE), MAGENTA)
+};
 
+void initMenu(){
+  for(auto& button : buttons){
+    button->draw();
+  }
+}
 
 void setup(void) {
   Serial.begin(9600);
@@ -44,28 +50,40 @@ void setup(void) {
   HAL.tft.setTextColor(GREEN);  HAL.tft.setTextSize(2);
   HAL.tft.println(GSC(STR__LANGUAGE_NAME));
                                                                                 Serial.println("Language Named.");
+  
+  initMenu();
 
   delay(1000);
 }
 
 void loop() {
-  ScreenPosition touch = HAL.touchPosition();
+  static unsigned int loop_cnt = 0;
+  static ScreenPosition* touch;
+                                                                                // Serial.print("Loop Begin: ");
+                                                                                // Serial.println(millis());
+  touch = HAL.touchPosition();
 
-  delay(1000);
-  HAL.eraseRegion(PaintRegion);
-  HAL.tft.setCursor(50, 50);
-  HAL.tft.setTextColor(0xFFFF-BGCOLOR);  HAL.tft.setTextSize(2);
-  HAL.tft.println(String(millis()));
+  // delay(200);
+  // if (loop_cnt % 5 == 0){
+  //   HAL.eraseRegion(TimerRegion);
+  //   HAL.tft.setCursor(65, 65);
+  // } else{
+  //   HAL.tft.setCursor(65, HAL.tft.getCursorY());
+  // } // loopcnt%?
+  // HAL.tft.setTextColor(0xFFFF-BGCOLOR);  HAL.tft.setTextSize(2);
+  // HAL.tft.println(String(millis()));
+  // HAL.tft.print(touch->x);
+  // HAL.tft.print(", ");
+  // HAL.tft.println(touch->y);
+  //
+  // HAL.tft.println("----");
+  //                                                                               Serial.print("Loop End: ");
+  //                                                                               Serial.println(millis());
 
-
-  // if( EraseButton.contains(touch) ){
-  //   HAL.eraseRegion(PaintRegion);
-  // }
-
-  // for(auto& button : buttons){
-  //   button->update(touch);
-  //   button->draw();
-  // }
+  for(auto& button : buttons){
+    button->update(touch);
+  }
+  delay(30);
 
   //
   //
@@ -105,4 +123,5 @@ void loop() {
   //   HAL.tft.fillCircle(p.x, p.y, PENRADIUS, currentcolor);
   // }
 
+loop_cnt++;
 }

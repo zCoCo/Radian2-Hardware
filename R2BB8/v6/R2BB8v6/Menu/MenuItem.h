@@ -18,6 +18,8 @@ class MenuItem {
     GraphicsObject* shapes[_MENUITEM_MAX_NUM_SHAPES];
     byte num_shapes = 0; ///  - Number of Shapes in this MenuItem
 
+    bool being_touched = 0; // Whether this Item is Currently Being Touched
+
     void (*action)();//       - Action to Perform when Clicked (externally settable)
 
     // Constructs an Null/Empty ScreenRegion
@@ -25,18 +27,34 @@ class MenuItem {
 
     // Draws this MenuItem
     void draw(){
+                                                                                Serial.println("MI Draw.");
       for(int i=0; i<num_shapes; i++){
-        shapes[i]->draw();
+                                                                                Serial.print("> Shape-");
+                                                                                Serial.print(i);
+                                                                                Serial.print(" of -");
+                                                                                Serial.println(num_shapes);
+                                                                                Serial.println("====");
+                                                                                Serial.println( (shapes[i])->color_fill );
+        (shapes[i])->draw();
       }
-    }
+    } // #draw
 
     // Updates the Screen Region Containing this Menu Item if Touched.
-    virtual void update(ScreenPosition& touch_point){
+    virtual void update(ScreenPosition* touch_point){
+    // Override to do Other Things for Certain Items (like highlight button)
+
       if(this->region->contains(touch_point)){
-        // Override to do Other Things for Certain Items (like highlight button)
-        this->action();
+
+        if(!being_touched){
+          this->being_touched = 1;
+
+          this->action();
+        }
+
+      } else{
+        this->being_touched = 0;
       }
-    }
+    } // #update
 };
 
 #endif //_CLASS_MENUITEM_H

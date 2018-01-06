@@ -22,9 +22,10 @@ class ScreenRegion {
     }
 
     // Returns Whether the given ScreenPoint is Contained within this Region.
-    bool contains(ScreenPosition& p){
-      return contains(p.x, p.y);
+    bool contains(ScreenPosition* p){
+      return contains(p->x, p->y);
     }
+
     // Returns Whether the given Point (x,y) is Contained within this Region.
     virtual bool contains(int16_t x, int16_t y) = 0;
     // Returns Whether the given X-Position is Contained within this Region.
