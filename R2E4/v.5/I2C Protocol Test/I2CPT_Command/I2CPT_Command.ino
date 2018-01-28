@@ -1,4 +1,5 @@
 // I2CPT_Command
+// Runs on the SCU.
 /*
  * Test Script for Protocol Which Transmits Motor Data found on Digital Inputs
  * over I2C.
@@ -12,22 +13,21 @@
 // Pod ID:
 #define POD_ID  632
 
-// Step Signal (Command Output/Input Pins):
-#define STP_O 6
-#define STP_I 7
+// Step Signal (Command Input Pins):]
+// R2AdM6 v1 (m168p):
+/*
+  STPA - PD3 - 3
+  DIRA - PD4 - 4
+  ENA  - PD2 - 2
+*/
+#define STP_I 3
 // Direction Signal:
-#define DIR_O 8
-#define DIR_I 9
+#define DIR_I 4
 // Enable Signal:
-#define EN_O 10
-#define EN_I 11
+#define EN_I 2
 
 void setup(){
   Wire.begin();
-
-  pinMode(STP_O, OUTPUT);
-  pinMode(DIR_O, OUTPUT);
-  pinMode(EN_O, OUTPUT);
 
   pinMode(STP_I, INPUT);
   pinMode(DIR_I, INPUT);
@@ -37,8 +37,10 @@ void setup(){
 }
 
 void loop(){
-  comm = generateMotorCommand(STP_I, DIR_I, EN_I);
+  // Motor A:
+  byte comm = generateMotorCommand(STP_I, DIR_I, EN_I);
   sendMotorCommand(POD_ID, comm);
+  delayMicroseconds(1); // Command Processing Relief (Due to differential rates at Main and Pod Driver)
 }
 
 
@@ -48,11 +50,11 @@ void loop(){
 //  bit 1 -> DIRECTION
 //  bit 2 -> ENABLE
 //  bit 3 -> if comm=111 -> set ID to next byte; else, requesting information.
-byte generateMotorCommand(stpi, diri, eni){
+byte generateMotorCommand(int stpi, int diri, int eni){
   // Read GPIO:
-  stp = digitalRead(stpi);
-  dir = digitalRead(diri);
-  en = digitalRead(eni);
+  bool stp = digitalRead(stpi);
+  bool dir = digitalRead(diri);
+  bool en = digitalRead(eni);
 
   // Generate Command:
   byte comm = stp | (dir << 1) | (en << 2);
@@ -66,7 +68,7 @@ return comm;
 //  bit 1 -> DIRECTION
 //  bit 2 -> ENABLE
 //  bit 3 -> if comm=111 -> set ID to next byte; else, requesting information.
-void sendMotorCommand(unsigned int mot_id, byte comm){
+void sendMotorCommand(int mot_id, byte comm){
   Wire.beginTransmission(mot_id);
     Wire.write(comm);
   Wire.endTransmission(); // mot_id

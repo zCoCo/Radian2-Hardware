@@ -25,10 +25,16 @@
 #define MS2 15
 #define MS3 14
 
+unsigned int count;
+unsigned long width;
+bool step_state;
+bool direction;
+
 // Define a stepper and the pins it will use
 //AccelStepper stepper(1, STP, DIR); // Defaults to AccelStepper::FULL4WIRE (4 pins) on 2, 3, 4, 5
 
 void setup(){
+  count = 0 ;
   // Initialize Microstepping State:
   /* Allegro A5984 Step Settings:
     321 | Fraction
@@ -42,26 +48,46 @@ void setup(){
     111 | 1/8
   */
   pinMode(MS1, OUTPUT);
-    digitalWrite(MS1, 1);
   pinMode(MS2, OUTPUT);
-    digitalWrite(MS2, 1);
   pinMode(MS3, OUTPUT);
-    digitalWrite(MS3, 1);
-
-  // Activate Driver:
   pinMode(STP, OUTPUT);
   pinMode(DIR, OUTPUT);
   pinMode(EN, OUTPUT);
-    digitalWrite(EN, 1);
+
+  digitalWrite(MS1, 1);
+  digitalWrite(MS2, 1);
+  digitalWrite(MS3, 1);
+
+  // Activate Driver:
+  digitalWrite(EN, 0);
 
   // Set Direction:
   digitalWrite(DIR, 1);
+  direction = 1;
+
+  digitalWrite(STP, 0);
+  step_state = 0;
 }
+
 
 void loop()
 {
-  delay(1);
+  delayMicroseconds(1);
   digitalWrite(STP, 1);
-  delay(1);
+  delayMicroseconds(3);
   digitalWrite(STP, 0);
+  //width = micros();
+  // if(width > 1){
+  //   step_state = !step_state;
+  //   digitalWrite(STP, step_state);
+  // }
+  // if(count > 500/2/TDEL && count % 2){
+  //   direction = !direction;
+  //   digitalWrite(DIR, direction);
+  //   count = 0;
+  //   delay(100);
+  // }
+
+
+  //count++;
 }
