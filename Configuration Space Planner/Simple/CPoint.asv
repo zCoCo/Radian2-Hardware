@@ -1,0 +1,27 @@
+% N-Dimensional Point Capable of Printing itself to a C-Array
+classdef CPoint
+    properties (GetAccess = public, SetAccess = private)
+        pos;
+    end % properties <- CPoint
+    methods
+        % Construct a Point with name name helkpfrom a Coordinate Vector
+        function obj = CPoint(coords)
+            obj.pos = coords(1,:); % Extract First Dmimension from Errant Two-Dimensional Entries
+        end %% Constructor
+        
+        % Returns the Runtime Name of this CPoint Instance
+        function str = runtime_name(obj) %Must receive obj to output inputname
+            str = inputname(1);
+        end
+        
+        % Creates a String to Create this Point as an Array in C.
+        % Optionally printing it to the console.
+        function str = toC(obj, print)
+            str = sprintf("float CP_%s[%d] = ", obj.runtime_name(), numel(obj.pos)) ...
+                  sprintf("%0.5f, ", pos(1:end-1)) + sprintf("%0.5f;", pos(end))
+            if(print)   
+                disp(str);
+            end
+        end
+    end % properties <- CPoint
+end %CPoint

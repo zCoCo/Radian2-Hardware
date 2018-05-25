@@ -11,5 +11,13 @@ void setup(){
 } // #setup
 
 void loop(){
-  
+  // TEST:
+  goTo(360);
+  delay(250);
+  goTo(180);
+  delay(250);
+  goTo(-180);
+  delay(250);
+  goTo(-360);
+  delay(250);
 } // #loop
