@@ -1,4 +1,5 @@
 // Hardware Abstraction Layer
+// Hardware: Essentially, an Arduino Nano soldered directly to an A4988 Step Stick.
 #ifndef _HAL_H
 #define _HAL_H
 
