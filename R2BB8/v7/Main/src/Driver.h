@@ -2,7 +2,7 @@ class Driver{ // shouldn't be a class
 public:
   Display* display;
   Page* activePage;
-  Point lastTouch;
+  ScreenPosition lastTouch;
 
   void update(){
     Point p = this->display->getTouchPoint();
