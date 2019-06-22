@@ -1,0 +1,26 @@
+ {
+  "name": "Test Assembly",
+  "labor": [
+    {
+      "id": "soldering",
+      "time_mins": 5
+    },
+    {
+      "id": "sorting",
+      "time_mins": 2
+    }
+  ],
+  "subAssemblies": [
+
+  ],
+  "parts": [
+    {
+      "id": "test",
+      "count": 50
+    },
+    {
+      "id": "packaging",
+      "count": 5
+    }
+  ]
+}

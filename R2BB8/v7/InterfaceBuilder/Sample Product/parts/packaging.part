@@ -1,0 +1,28 @@
+{
+  "name": "Packaging",
+  "vendor": "Pack Vendor",
+  "link": "http://ottia.xyz",
+
+  "costTable": {
+    "volumes": [1, 10, 100, 1000],
+    "costs": [0.9, 0.8, 0.7, 0.6],
+    "type": "linear"
+  },
+
+  "origin": "PCBWay",
+  "sourcing": "DHL",
+  "sourcingCostTable": {
+    "volumes": [1, 10, 100, 1000],
+    "costs": [30, 30, 40, 100],
+    "type": "binned"
+  },
+
+  "length": 12.5,
+  "height": 18.5,
+
+  "expressions": {
+    "weight": "areaDensity * (2*length*width + 2*width*height + 2*height*length)",
+    "width": "2*5.5",
+    "areaDensity": "0.00018056"
+  }
+}

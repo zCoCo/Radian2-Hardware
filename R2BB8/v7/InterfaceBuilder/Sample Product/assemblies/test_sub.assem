@@ -1,0 +1,21 @@
+{
+  "name": "Test Assembly",
+  "labor": [
+    {
+      "id": "basicAssembly",
+      "time_mins": 15
+    }
+  ],
+  "subAssemblies": [
+    {
+      "id": "test",
+      "count": 1
+    }
+  ],
+  "parts": [
+    {
+      "id": "test",
+      "count": 2
+    }
+  ]
+}

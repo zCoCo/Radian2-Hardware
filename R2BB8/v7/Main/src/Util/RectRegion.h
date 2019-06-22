@@ -19,6 +19,7 @@ class RectRegion : public ScreenRegion{
     {
       width = 0;
       height = 0;
+      bounding_box = this;
     }
 
     // Constructs a Rectangular Region of the Screen from the Position of its
@@ -28,6 +29,7 @@ class RectRegion : public ScreenRegion{
     {
       width = w;
       height = h;
+      bounding_box = this;
     }
 
     // Constructs a Region of the Screen from the Position of its Center Position,
@@ -37,11 +39,6 @@ class RectRegion : public ScreenRegion{
     }
     static RectRegion* constructFromCenter(ScreenPosition& cp, int16_t w, int16_t h){
       return new RectRegion((cp.x - w/2), (cp.y - h/2), w, h);
-    }
-
-    // Returns the Position of the Center of this Region.
-    ScreenPosition centerPosition(){
-      return ScreenPosition(upperLeft.x + width/2, upperLeft.y + height/2);
     }
 
     // Translate the Given Screen Region by Dx, Dy
@@ -76,6 +73,5 @@ class RectRegion : public ScreenRegion{
                 (r1.height != height) );
     }
 };
-
 
 #endif //_CLASS_RECTREGION_H

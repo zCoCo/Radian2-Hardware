@@ -4,7 +4,6 @@
 #ifndef _CLASS_SCREENPOSITION_H
 #define _CLASS_SCREENPOSITION_H
 
-
 class ScreenPosition {
   public:
     ScreenPosition(void){

@@ -1,0 +1,38 @@
+{
+  "name": "Ace",
+  "version": "0.0.1",
+  "description": "Ace: The Adaptive Cost Estimator",
+  "author": "Ottia",
+  "main": "app.js",
+  "homepage": "./",
+  "private": true,
+  "scripts": { 
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "electron": "electron app.js",
+    "clean": "",
+    "dev": "nf start -p 3000",
+    "pack": "",
+    "package": "npm-run-all clean build pack"
+  },
+  "devDependencies": {
+    "electron": "^1.7.9",
+    "gulp": "^4.0.0",
+    "gulp-babel": "^7.0.1",
+    "gulp-concat": "^2.6.1",
+    "gulp-html-replace": "^1.6.2",
+    "gulp-jshint": "^2.1.0",
+    "jshint": "^2.9.5",
+    "gulp-rename": "^1.3.0",
+    "gulp-uglify": "^3.0.0",
+    "react-scripts": "^1.1.4"
+  },
+  "dependencies": {
+    "react": "^16.1.1",
+    "react-dom": "^16.1.1",
+    "underscore": "^1.9.0",
+    "mathjs": "^5.0.0"
+  }
+}

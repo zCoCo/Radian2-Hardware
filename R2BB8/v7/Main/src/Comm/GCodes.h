@@ -12,10 +12,10 @@ const __FlashStringHelper* G0, G1, G399;
 // a function.
 void populateGCODE(){
   // GCodes:
-  G0 = S("G0");
-  G1 = S("G1");
+  G0 = SS("G0");
+  G1 = SS("G1");
 
-  G399 = S("G399");
+  G399 = SS("G399");
 }
 
 #endif // _GCODE_LIST_H

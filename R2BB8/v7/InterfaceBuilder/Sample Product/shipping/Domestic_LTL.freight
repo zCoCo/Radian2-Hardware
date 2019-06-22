@@ -1,0 +1,13 @@
+{
+  "name": "Domestic LTL",
+  "provider": "UPS LTL",
+  
+  "rates":[
+    {
+      "nmfcClass": 92.5,
+      "rate_per_unit": 0,
+      "rate_per_lb": 0.76,
+      "rate_per_cuin": 0
+    }
+  ]
+}

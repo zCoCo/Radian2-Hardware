@@ -1,0 +1,44 @@
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/cores/tiny
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/variants/tinyX8
+-I/Volumes/PKBACK# 001/GitHub/Radian2-Hardware/R2E5+/I2CTest/lib/Wire/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/__cores__/tiny/EEPROM
+-I/Volumes/PKBACK# 001/GitHub/Radian2-Hardware/R2E5+/I2CTest/lib/TMC2130Stepper/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/__cores__/tiny/SPI
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/__cores__/tiny/Servo/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/__cores__/tiny/SoftwareSerial
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/__cores__/tiny/Wire/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Adafruit_CircuitPlayground
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Adafruit_CircuitPlayground/utility
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Bridge/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Esplora/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Ethernet/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Firmata
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Firmata/utility
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/GSM/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Keyboard/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/LiquidCrystal/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Mouse/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/RobotIRremote/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Robot_Control/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Robot_Motor/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/SD/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Servo/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/SpacebrewYun/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Stepper/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/TFT/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/Temboo/src
+-I/Users/zCoCo/.platformio/packages/framework-arduinoavr/libraries/WiFi/src
+-I/Users/zCoCo/.platformio/packages/toolchain-atmelavr/avr/include
+-I/Users/zCoCo/.platformio/packages/toolchain-atmelavr/lib/gcc/avr/4.9.2/include
+-I/Users/zCoCo/.platformio/packages/toolchain-atmelavr/lib/gcc/avr/4.9.2/include-fixed
+-I/Users/zCoCo/.platformio/packages/tool-unity
+-I/Volumes/PKBACK# 001/GitHub/Radian2-Hardware/R2E5+/I2CTest/include
+-I/Volumes/PKBACK# 001/GitHub/Radian2-Hardware/R2E5+/I2CTest/src
+-DF_CPU=8000000L
+-DPLATFORMIO=30603
+-DARDUINO_AVR_ATTINYX8
+-DUSING_PLATFORMIO
+-DR2E5v1
+-DARDUINO_ARCH_AVR
+-DARDUINO=10805
+-D__AVR_ATtiny48__

@@ -1,0 +1,32 @@
+{
+  "basicAssembly": {
+    "name": "Basic Assembly",
+    "rate_per_hour": 17.78,
+    "overheadFactor": 1.25
+  },
+  "soldering": {
+    "name": "Soldering",
+    "rate_per_hour": 20.18,
+    "overheadFactor": 1.5
+  },
+  "sorting": {
+    "name": "Sorting",
+    "rate_per_hour": 13.38,
+    "overheadFactor": 1.25
+  },
+  "equipmentTestingQC": {
+    "name": "Equipment Testing / QC",
+    "rate_per_hour": 13.38,
+    "overheadFactor": 1.25
+  },
+  "cutting": {
+    "name": "Cutting",
+    "rate_per_hour": 20.18,
+    "overheadFactor": 1.5
+  },
+  "hardwareProgrammingFlashing": {
+    "name": "Hardware Programming (Flashing)",
+    "rate_per_hour": 13.38,
+    "overheadFactor": 1.75
+  }
+}

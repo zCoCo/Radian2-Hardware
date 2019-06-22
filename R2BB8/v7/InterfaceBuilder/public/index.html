@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+
+  <title>Ottia Aba: Adaptive BOM Administrator</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../libs/bootstrap/css/bootstrap-3.3.7.min.css">
+  <link rel="stylesheet" href="./css/styles.css">
+
+  <!-- External Scripts -->
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+  <script src="../libs/jquery/js/jquery-3.3.1.min.js"></script>
+  <script src="../libs/popper/js/popper-1.14.3.min.js"></script>
+  <script src="../libs/bootstrap/js/bootstrap-3.3.7.min.js"></script>
+  <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
+  <script>if (window.module) module = window.module;</script>
+
+  <!-- Internal Scripts -->
+  <!-- build:js -->
+  <script src="./src/js/index.js"></script>
+  <!-- endbuild -->
+
+</head>
+
+<body>
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">Ottia Aba</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <!--
+          <li><a href="#">Mission Control</a></li>
+          <li><a href="#">Make</a></li>
+          <li><a href="#">Makerscript</a></li>
+          <li><a href="#">Tool Kit</a></li>
+          -->
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-3 col-md-2 sidebar">
+        <ul class="nav nav-sidebar">
+          <li class="active"><a href="#machine-status">Product Summary<span class="sr-only">(current)</span></a></li>
+          <li><a href="#command-module">Data Analysis</a></li>
+          <li><a href="#command-module">Assemblies</a></li>
+          <li><a href="#message-log">Parts</a></li>
+          <li><a href="#message-log">Locations</a></li>
+          <li><a href="#message-log">Shipments</a></li>
+        </ul>
+      </div> <!-- End: Side Bar -->
+
+      <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+        <h1 class="display-1 page-header">Mission Control</h1>
+        <div class="row placeholders">
+          <div class="col-xs-12 col-sm-6 placeholder">
+            <h3 class="md-content-header">Front View</h3>
+            <div class="container-fluid canvas-container machine-view-container">
+              <canvas class="machine-frontView"></canvas>
+            </div>
+          </div>
+          <div class="col-xs-12 col-sm-6 placeholder">
+            <h3 class="md-content-header">Top-Down View</h3>
+            <div class="container-fluid canvas-container machine-view-container">
+              <canvas class="machine-topView"></canvas>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-info" title="" data-container="body" data-toggle="popover" data-placement="left" data-content="You can move the arm in small amounts by clicking these controls or move it to any location by clicking on the map above." data-original-title="Move the Arm">?</button>
+        </div> <!-- End: Machine Views -->
+
+        <h2 class="sub-header">Command Module</h2>
+        <div id="command-module">
+          <div class="row">
+            <span class="h3" style="vertical-align: middle">X: </span>
+            <button type="button" class="btn btn-info disabled" id="cm--x-plus">+</button>
+            <button type="button" class="btn btn-info disabled" id="cm--x-minus">-</button>
+            <span class="h3" style="vertical-align: middle">Y: </span>
+            <button type="button" class="btn btn-info disabled" id="cm--y-plus">+</button>
+            <button type="button" class="btn btn-info disabled" id="cm--y-minus">-</button>
+          </div>
+        </div> <!-- End: Command Module -->
+
+        <h2 class="sub-header">Message Log</h2>
+        <div id="message-log">
+          <div class="form-group">
+            <fieldset>
+              <legend>Messaging</legend>
+              <input class="form-control form-control-lg" type="text" placeholder="Awaiting Machine Connection . . ." readonly="">
+
+            </fieldset>
+          </div>
+        </div> <!-- End: Message Log -->
+      </div> <!-- End: Main Content Stream -->
+    </div>
+  </div>
+</body>
+
+</html>

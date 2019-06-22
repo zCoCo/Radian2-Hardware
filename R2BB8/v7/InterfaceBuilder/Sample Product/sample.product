@@ -1,0 +1,47 @@
+{
+  "name": "Sample",
+  "currency": "USD",
+  "units": ["lb", "mm"],
+
+  "minManufacturingVolume": 150,
+
+  "distributorLocations": [
+    {
+      "locId": "3PL Provider",
+      "stockFrac": 1
+    }
+  ],
+
+  "assemblies": [
+    {
+      "id": "test",
+      "count": 1
+    },
+    {
+      "id": "testSub",
+      "count": 2
+    }
+  ],
+
+  "shipments": [
+    {
+      "type": "freight",
+      "from": "Electronics Fabricator",
+      "to": "Assembler",
+      "via": "Domestic_LTL",
+      "contents": [
+        "test.part"
+      ]
+    },
+    {
+      "type": "freight",
+      "from": "Injection Molder",
+      "to": "Assembler",
+      "via": "Domestic_LTL",
+      "contents": [
+        "mold1.part",
+        "mold2.part"
+      ]
+    }
+  ]
+}

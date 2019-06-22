@@ -1,4 +1,4 @@
-class Driver{ // shouldn't be a class
+class Driver{ // shouldn't be a class (?)
 public:
   Display* display;
   Page* activePage;
