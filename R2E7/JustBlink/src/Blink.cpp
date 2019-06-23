@@ -1,7 +1,7 @@
 /*
  * Blink
- * Turns on an LED on for one second,
- * then off for one second, repeatedly.
+ * Really basic test to verify that board is alive and programmable (based
+ * heavily on platformio ststm32 examples)
  */
 
 #include <Arduino.h>
@@ -15,13 +15,17 @@ void setup(){
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
-void loop(){
+void blink(uint32_t t){
   // turn the LED on (HIGH is the voltage level)
   digitalWrite(LED_BUILTIN, HIGH);
-  // wait for a second
-  delay(1000);
-  // turn the LED off by making the voltage LOW
+  delay(t);
   digitalWrite(LED_BUILTIN, LOW);
-   // wait for a second
-  delay(1000);
+  delay(t);
+}
+
+void loop(){
+  blink(1000);
+  blink(500);
+  blink(250);
+  blink(250);
 }
