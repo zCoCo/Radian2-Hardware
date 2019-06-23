@@ -31,8 +31,8 @@
   AccelStepper stepper = AccelStepper(AccelStepper::DRIVER, STP, DIR);
 
   void init_stepper(){
-    stepper.setMaxSpeed(180 * STEPS_PER_DEG); // 180deg/s (TODO: verify units of fnc)
-    stepper.setAcceleration(1000 * STEPS_PER_DEG); // 100deg/s^2 (TODO: verify units of fnc)
+    stepper.setMaxSpeed(18 * STEPS_PER_DEG); // 180deg/s (TODO: verify units of fnc)
+    stepper.setAcceleration(100 * STEPS_PER_DEG); // 100deg/s^2 (TODO: verify units of fnc)
     stepper.setEnablePin(ENA);
     stepper.setPinsInverted(0,0,1);
     stepper.enableOutputs();

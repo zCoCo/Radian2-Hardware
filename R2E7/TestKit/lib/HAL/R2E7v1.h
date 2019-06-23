@@ -62,10 +62,6 @@
     digitalWrite(ENA, LOW);
 
     SPI.begin();
-    Serial.begin(9600);
-    while(!Serial); // Wait for UART connection
-    Serial.println("Start . . . ");
-
     pinMode(CS_DRV, OUTPUT);
     digitalWrite(CS_DRV, HIGH);
     driver.begin();             // Initiate pins and registeries
