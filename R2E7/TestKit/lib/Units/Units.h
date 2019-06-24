@@ -18,9 +18,13 @@
    moveTo(Angle<int>(15_deg),);
    moveTo(Angle<float>(pi_rad));
    */
-  #include <Util.h>
+   #include <NamedType.hpp>
 
-  using Degree<T> = NamedType<T, struct DegreeParam>;
+   using Mtr = NamedType<double, MeterTag, Addable, Comparable, Callable>
+   //using Meter = NamedType<double, MeterTag, Operable, Callable>
+
+
+  /*using Degree<T> = NamedType<T, struct DegreeParam>;
   using Millisecond<T> = NamedType<T, struct MSParam>;
 
   template <typename T>
@@ -47,6 +51,6 @@
   template <typename T>
   Millisecond<T> operator"" _hr(T time){
     return Millisecond<T>(time * 3600000)
-  }
+  }*/
 
 #endif // _UNITS_H

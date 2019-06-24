@@ -1,9 +1,14 @@
 // Compile using PlatformIO. Latest version tested: 3.6.3
 
 #include <Arduino.h>
+#undef min // ETL Support
+#undef max
+
 #include "SPI.h" // Platformio LDF has trouble knowing core libraries like this exist unless included here.
 
 #include <HAL.h>
+
+//#include <Units.h>
 
 #ifndef LED_BUILTIN
   #define LED_BUILTIN PC13
@@ -68,6 +73,7 @@ void loop(){
 } // #loop
 
 /* Scheduler Notes: *look into migrating to FreeRTOS instead of finishing the scheduler*
+// !!If you keep the scheduler, look into using ETL pool for action "creation"/"deletion"
 Sch.run() called as frequently as possible.
 Sch.concurrent = [void (*fcn)(void)] to be called on every #run event
 Contains RingBuffer of (timeToBeExecuted, (*fcn)(void)) events.
