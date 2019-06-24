@@ -22,7 +22,7 @@
   #define MAX_RPM 10 //150
   #define ACCEL 100
 
-  constexpr float STEPS_PER_DEG = 200.0f / 360.0f; // 200 stp/rev / 360 deg/rev
+  constexpr float STEPS_PER_DEG = MICROSTEPS * 200.0f / 360.0f; // 200 stp/rev / 360 deg/rev
 
   #ifdef R2E7v1
     #include "R2E7v1.h"
@@ -31,8 +31,8 @@
   AccelStepper stepper = AccelStepper(AccelStepper::DRIVER, STP, DIR);
 
   void init_stepper(){
-    stepper.setMaxSpeed(18 * STEPS_PER_DEG); // 180deg/s (TODO: verify units of fnc)
-    stepper.setAcceleration(100 * STEPS_PER_DEG); // 100deg/s^2 (TODO: verify units of fnc)
+    stepper.setMaxSpeed(360 * STEPS_PER_DEG); // 180deg/s (TODO: verify units of fnc)
+    stepper.setAcceleration(500 * STEPS_PER_DEG); // 100deg/s^2 (TODO: verify units of fnc)
     stepper.setEnablePin(ENA);
     stepper.setPinsInverted(0,0,1);
     stepper.enableOutputs();

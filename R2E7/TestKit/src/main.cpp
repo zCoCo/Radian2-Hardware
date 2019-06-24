@@ -18,6 +18,9 @@ void setup(){
 
   init_HAL();
   init_stepper();
+
+	Serial.print("DRV_STATUS=0b");
+	Serial.println(driver.DRV_STATUS(), BIN);
 }
 
 void blink(uint32_t t){
@@ -28,6 +31,27 @@ void blink(uint32_t t){
   delay(t/2);
 }
 
+bool dir = true;
+void loop2() {
+	digitalWrite(STEP_PIN, HIGH);
+	delayMicroseconds(10);
+	digitalWrite(STEP_PIN, LOW);
+	delayMicroseconds(10);
+	uint32_t ms = millis();
+	static uint32_t last_time = 0;
+	if ((ms - last_time) > 2000) {
+		if (dir) {
+			Serial.println("Dir -> 0");
+			driver.shaft(0);
+		} else {
+			Serial.println("Dir -> 1");
+			driver.shaft(1);
+		}
+		dir = !dir;
+		last_time = ms;
+	}
+}
+
 unsigned long long last_time = 0;
 void loop(){
   if (millis() - last_time > 250){
@@ -36,26 +60,12 @@ void loop(){
   }
   if(stepper.distanceToGo() == 0){
     Serial.println("Blorp");
-    stepper.disableOutputs();
     delay(100);
-    stepper.move(180*STEPS_PER_DEG); // Move 100deg
-    stepper.enableOutputs();
+    stepper.moveTo(180*STEPS_PER_DEG*dir); // Move 180deg
+		dir = !dir;
   }
   stepper.run();
 } // #loop
-
-void loop2(){
-  Serial.println("Blink");
-  blink(250);
-  blink(250);
-  blink(500);
-  blink(1000);
-  Serial.println("Blonk");
-  blink(500);
-  blink(500);
-  blink(1000);
-  blink(1500);
-}
 
 /* Scheduler Notes: *look into migrating to FreeRTOS instead of finishing the scheduler*
 Sch.run() called as frequently as possible.
