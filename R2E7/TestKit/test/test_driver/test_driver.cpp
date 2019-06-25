@@ -68,7 +68,7 @@ void test_stable_driver_conditions(void){
     "coil current isn't set too low. "
   );
   if(motor_shorted()){
-    Serial << "Current Shorting State: Coil A - " << (driver.s2ga() ? "yes":"no") << ", Coil B - " << (driver.s2gb() ? "yes":"no");
+    Serial << "Current Shorting State: Coil A - " << (driver.s2ga() ? "yes":"no") << ", Coil B - " << (driver.s2gb() ? "yes":"no") << endl;
   }
   TEST_ASSERT_FALSE_MESSAGE(motor_shorted(),
     "Motor driver is reporting a short to ground between one or both of the "
