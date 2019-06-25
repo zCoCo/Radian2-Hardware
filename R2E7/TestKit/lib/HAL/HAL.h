@@ -10,19 +10,18 @@
   #include <AccelStepper.h>
 
   // Physical Specs:
-  // Ratio of Number of Turns on the Motor Shaft to Number of Turns on the Output
-  // 69.60:15.60 = 4.4615384615 <- from Pitch Diameter
-  // 58:13 = 4.4615384615 <- from Number of Teeth
-  // Cycloid Drive Reduction: 20 ring pins -> 19x reduction
-  #define GEAR_RATIO 1.0f //(19.0f * 4.4615384615f)
-  #define MICROSTEPS 2
+  #define MICROSTEPS 64
 
   // Motor Specs:
-  #define STEPS_PER_REV 200
-  #define MAX_RPM 10 //150
-  #define ACCEL 100
+  constexpr float FULL_STEPS_PER_REV = 200.0f; // ignoring microstepping
+  #define MAX_RPM 90 // [rev/min] Empirical
+  #define ACCEL 500 // [deg/s^2]
+  #define MAX_RMS_CURRENT 1000 // [mA] - Max. RMS motor coil current
 
-  constexpr float STEPS_PER_DEG = MICROSTEPS * 200.0f / 360.0f; // 200 stp/rev / 360 deg/rev
+  constexpr float STEPS_PER_REV = MICROSTEPS * FULL_STEPS_PER_REV;
+  constexpr float STEPS_PER_DEG = STEPS_PER_REV / 360.0f;
+
+  constexpr float MAX_STEP_SPEED = MAX_RPM * 360.0f * STEPS_PER_DEG / 60.0f; // [stp/sec]
 
   #ifdef R2E7v1
     #include "R2E7v1.h"
@@ -31,8 +30,8 @@
   AccelStepper stepper = AccelStepper(AccelStepper::DRIVER, STP, DIR);
 
   void init_stepper(){
-    stepper.setMaxSpeed(360 * STEPS_PER_DEG); // 180deg/s (TODO: verify units of fnc)
-    stepper.setAcceleration(500 * STEPS_PER_DEG); // 100deg/s^2 (TODO: verify units of fnc)
+    stepper.setMaxSpeed(MAX_STEP_SPEED);
+    stepper.setAcceleration(ACCEL * STEPS_PER_DEG);
     stepper.setEnablePin(ENA);
     stepper.setPinsInverted(0,0,1);
     stepper.enableOutputs();

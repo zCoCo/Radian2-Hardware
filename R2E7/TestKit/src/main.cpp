@@ -8,7 +8,7 @@
 
 #include <HAL.h>
 
-//#include <Units.h>
+#include <LiveTuner.h>
 
 #ifndef LED_BUILTIN
   #define LED_BUILTIN PC13
@@ -26,10 +26,15 @@ void setup(){
 
 	Serial.print("DRV_STATUS=0b");
 	Serial.println(driver.DRV_STATUS(), BIN);
+  init_LiveTuner();
+}
+
+void loop(){
+  run_LiveTuner();
+  stepper.run();
 }
 
 void blink(uint32_t t){
-  // turn the LED on (HIGH is the voltage level)
   digitalWrite(LED_BUILTIN, HIGH);
   delay(t/2);
   digitalWrite(LED_BUILTIN, LOW);
@@ -58,7 +63,7 @@ void loop2() {
 }
 
 unsigned long long last_time = 0;
-void loop(){
+void loop3(){
   if (millis() - last_time > 250){
     Serial.println(stepper.distanceToGo());
     last_time = millis();
