@@ -1,116 +1,140 @@
-// I2C Communication Protocol
-#ifndef _COMM_H
-#define _COMM_H
+/****
+  * Ottia M1 Communication Protocol for Actuators receiving messages from the
+  * basestation.
+  * TODO: Generalize so both ends can include this codebase.
+  ** Requires generalizing System (creating ABC) for use by basestation ...
+  ** or just pass the Comm an OttiaM1RegisterBank.
+  *
+  * Author: Connor W. Colombo
+  * Last Update: 9/15/2019, Colombo
+ ****/
+ #ifndef _M1_COMM_H
+ #define _M1_COMM_H
 
-#include <Wire.h>
-#include <EEPROM.h>
+ #include <System.h>
 
-#include "EEPROM_addrs.h"
-#include <Util.h>
-#include <Motion.h>
+ /*
+  * Standard format for message headers.
+  */
+ union messageHeader_t{
+   struct data_t{
+     uint16_t address; //      - Bus Address of Device being Targeted
+     uint8_t writeData:1; //   - Writing Data to Register = 1, Reading = 0
+     uint8_t registerID:7; //  - ID of Target Register
+     uint8_t :0; // start new byte
+     uint8_t startByte; //     - 0-indexed number of byte to start reading/writing in the register, inclusive
+     uint8_t length;  //       - Number of bytes to be read/written
+     uint16_t crc; //          - 2-byte Cyclic-Redundancy Checksum of header contents (and an upcoming message if writeData=1)
+   } data;
+   uint8_t raw[sizeof(data_t)];
 
-  int pod_id = 100; // Default Value
-  #define POD_ID_EEPROM_ADDR 10 // Address of the POD_ID in EEPROM
-
-  // Check if a Special Pod ID has been Set in EEPROM and, if so, Return it, if
-  // not, return the current value of POD_ID (the default).
-  int getPodID(){
-    int id = EEPROM.read(POD_ID_EEPROM_ADDR);
-    if(id == 0xFF){ // Default Value of Clean EEPROM
-      id = POD_ID; // then use the default value for a pod-driver
-    }
-
-   return id;
-  } // #getPodID
-
-  // Sets a Special Pod ID to be used for Communication and Stores it in EEPROM.
-  // By design, this requires a reset to take effect so as to not disrupt ongoing
-  // communication.
-  // NOTE: I2C Address are 7bit so Max ID is 127.
-  void setPodID(int id){
-    EEPROM.update(POD_ID_EEPROM_ADDR, constrain(id, 0,127));
-  } // #setPodID
-
-  /* INCOMING I2C MESSAGING PROTOCOL:
-   - N Byte Message:
-   -- 0: N=Length (of subsequent bytes, excluding itself)  1: Command   [2,N]: Contents/Value
-    Comm 1 -> Go To Angle -> [4bytes as float] Angle, in degrees
-    Comm 2 -> Home Joint -> [0 bytes]
-
-    Comm 90 -> Set Pod ID -> [1 byte as int] ID
+   /*
+    * Computes the CRC of all Data in the Message Header (except the CRC itself).
+    * If the pointer to a message is given, the CRC will also include the given
+    * message in the computation.
+    * Uses CRC-16 which has a 1/65536 chance of collision (failed error
+    * detection) vs the 1/256 of CRC-8.
     */
-  void process_I2C_message(int8_t* msg){
-    short len = msg[0];
+   uint16_t computeCRC(uint8_t* message = nullptr, uint8_t len = 0){
 
-    switch(msg[1]){ // Command
-      case 1: //                                - Go To Angle
-        FloatUnion_t ang;
-        for(int i=0; i<4; i++){
-          ang.bytes[i] = msg[2+i];
-        }
+     uint16_t crc = 0xFFFF;
+     for(uint8_t i=0; i<(sizeof(data_t)-2); i++){
+       updateCRC16(&crc, raw[i]);
+     }
 
-        goTo(ang.number);
-      break;
+     for(i=0; i<len; i++){ // len>0 -> message was given, compute CRC on that too
+       updateCRC16(&crc, message[i]);
+     }
 
-      case 2: //                                - Home Joint
-        home();
-      break;
+     return crc;
+   }
 
-      case 90:
-        setPodID(msg[2]);
-      break;
+   /*
+    * Performs a CRC-16 update on the given (partial) CRC with the given byte, b.
+    */
+   void updateCRC16(uint16_t* crc, uint8_t b){
+     static constexpr uint8_t divisor = 0x4B37; // divisor / generator polynomial
+     *crc ^= b;
+     for(uint8_t j=0; j<8; j++){ // 8-bit division
+       *crc = (*crc & 1) ? (*crc >> 1) ^ divisor : (*crc >> 1);
+     }
+   }
 
-      default:
-        // Do Nothing.
-      break;
-    }
-  } // #process_I2C_message
+   // Sets the CRC value in the Header to that of the Rest of the Data and, if
+   // a pointer and length are given, the contents of the given message.
+   void setCRC(uint8_t* message = nullptr, uint8_t len = 0){
+     data.crc = computeCRC(message, len);
+   }
 
-  // I2C Message Intake
-  // Low-Level Protocol Package Structure:
-  // - Package Byte 0: '#' to Initiate
-  // - Package Byte 1: Message Length, N
-  // - Package Bytes [2,N-1]: Message Contents to be Processed Later
-  #define I2C_INITIALIZER '#'
-  #define DEFAULT_I2C_MSG_LENGTH 3
-  #define MAX_I2C_MSG_LENGTH 10
-  void read_I2C_message(int bytesIn){
-    static short msg_byte = 0; // Current Message Byte being Processed
-    static short msg_length = 0; // Length of Current Message
-    static bool in_msg = 0; // Whether a message is currently being read.
-    static int8_t curr_msg[MAX_I2C_MSG_LENGTH+1];
+   // Returns whether the CRC stored in the header matches the CRC computed
+   // from the rest of the data (verifies data integrity) and, if a pointer
+   // and length are given, the contents of the given message.
+   bool checkCRC(uint8_t* message = nullptr, uint8_t len = 0){
+     return data.crc == computeCRC(message, len);
+   }
+ } messageHeader;
 
-    int8_t c = (int8_t) Wire.read();
+ /*
+  * Performs a communications update.
+  * Call as often as possible since max buffer size is 64bytes.
+  // Trade onL Blanking intervals or search for initiator.
+  ** TODO: !! address sync issues in protocol since if buffer overflows,
+  ** comms will likely remain out of sync. !!
+  // TODO: Address potential out-of-sync issue for hotswapped devices (if they
+  // come online in the middle of a message, they'll never be in sync).
+  // ((basestation issues a sync 0xf... pulse of 2 message lengths when the
+  // device the basestation knew to be last is no longer TERM?))
+  // Whether currently waiting for a message header to arrive. If not, then waiting for message body.
+  */
+ void comm_update(){
+   static bool waiting_for_header = 1;
+   static uint8_t* reg_rawData; // address of raw data section of register being read/written
+   static uint8_t incomingDataBuffer[MAX_REG_LENGTH]; // Static memory buffer helps fight fragmentation
 
-    if(in_msg){
-      if(msg_length == 0){ // No length set yet, set it.
-        if(c != 0){
-          msg_length = c;
-        } else{ // errant msg length, end msg and don't process.
-          in_msg = 0;
-        }
-      } else{
-        curr_msg[msg_byte] = c; // Load in Data.
+   // Read In New Message Reader and Respond if Requested:
+   if(waiting_for_header && PRIMARY_USART.available() >= sizeof(messageHeader.raw)){
+     PRIMARY_USART.readBytes(messageHeader.raw, sizeof(messageHeader));
 
-        if(msg_byte == (msg_length - 1)){ // Advance Write Position or end Message.
-          in_msg = 0; // End Message (before calling process to avoid desynchronization)
-          process_I2C_message(curr_msg);
-        } else{
-          msg_byte++;
-        }
-      } // msg_length==0?
+     if(messageHeader.checkCRC() && messageHeader.data.address == HAL.deviceID){
+       // Fetch Raw Data Array of Indicated Register:
+       reg_rawData = System.Registers.getRegisterBytesFromID(messageHeader.data.registerID);
+       // Ensure All Bytes to be Accessed are in Range (must check both in case
+       // of corrupted data and a start byte which is near overflow,
+       // eg. start=254, len=2, start+len%256 < sizeof(data)):
+       if(reg_rawData != nullptr // make sure valid register was selected
+       && messageHeader.data.startByte < sizeof(reg_rawData)
+       && messageHeader.data.startByte + messageHeader.data.length <= sizeof(reg_rawData)
+       && messageHeader.data.length <= MAX_REG_LENGTH){ // Perform Sanity Check on Length since CRC hasn't been checked yet
+         reg_rawData += messageHeader.data.startByte; // Advance pointer to start position
+         if(messageHeader.data.writeData){
+         // Register is being written to:
+           waiting_for_header = 0; // accept this header, wait for body.
+         } else if(messageHeader.checkCRC()){
+         // Valid request for data was given by basestation for selected data.
+           // Craft new message header (using same data space)
+           // - address stays the same since it now becomes the address of the sender (target is always the basestation)
+           // - register, startByte, and length all stay the same since same data is being referenced
+           messageHeader.data.writeData = 1; // this message will be writing data in the sender
+           // New CRC must be computed which includes the contents of the message:
+           messageHeader.setCRC(reg_rawData, messageHeader.data.length);
+           // Send Message Header:
+           PRIMARY_USART.write(messageHeader.raw, sizeof(messageHeader.raw));
+           // Send Message:
+           PRIMARY_USART.write(reg_rawData, messageHeader.data.length);
+         }
+       }
+     }
+   }
+   // Read In New Message Contents and Write Contents to Selected Register:
+   if(!waiting_for_header && PRIMARY_USART.available() >= messageHeader.data.length){
+     // Bring in the bytes:
+     PRIMARY_USART.readBytes(incomingDataBuffer, messageHeader.data.length);
+     // Verify integrity of message header and message before copying:
+     if(messageHeader.checkCRC(incomingDataBuffer, messageHeader.data.length)){
+       memcpy(reg_rawData, incomingDataBuffer, messageHeader.data.length); // copy data into selected register
+       waiting_for_header = 1; // Body read. Now awaiting a new message header.
+     }
+   }
+ }
 
-    } else if(c == I2C_INITIALIZER){
-      in_msg = 1; // Start reading message
-      msg_length = 0; // Default.
-      msg_byte = 0;
-    } // in_msg?
-  } // #read_I2C_message
-
-  void init_comm(){
-    pod_id = getPodID();
-    Wire.begin(pod_id);
-    Wire.onReceive(read_I2C_message);
-  } // #init_comm
-
-#endif //_COMM_H
+ #endif //_M1_COMM_H

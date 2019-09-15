@@ -3,7 +3,7 @@
  * is: if any of these tests fail, there is almost certainly a hardware failure.
  *
  * Author: Connor W. Colombo, Ottia
- * Last Update: 6/23/2019
+ * Last Update: 8/28/2019, Colombo
  */
 
 #ifdef UNIT_TEST
@@ -14,7 +14,7 @@
 
 #include <HAL.h>
 
-#if defined(R2E7v1) // Tests listed in order of increasing complexity:
+#if defined(R2E7v1) || defined(M1C1v2) // Tests listed in order of increasing complexity:
 //Perform any setup neccessary for testing that can't be guaranteed outside it.
 void init_testing_env(void){
   // Ensure DIAG1 only reports on motor stall:
@@ -68,7 +68,7 @@ void test_stable_driver_conditions(void){
     "coil current isn't set too low. "
   );
   if(motor_shorted()){
-    Serial << "Current Shorting State: Coil A - " << (driver.s2ga() ? "yes":"no") << ", Coil B - " << (driver.s2gb() ? "yes":"no") << endl;
+    Serial << "Current Shorting State: Coil A - " << (driver.s2ga() ? "shorted":"no") << ", Coil B - " << (driver.s2gb() ? "shorted":"no") << endl;
   }
   TEST_ASSERT_FALSE_MESSAGE(motor_shorted(),
     "Motor driver is reporting a short to ground between one or both of the "

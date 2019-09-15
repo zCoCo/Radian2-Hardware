@@ -7,6 +7,8 @@
 #include "SPI.h" // Platformio LDF has trouble knowing core libraries like this exist unless included here.
 
 #include <HAL.h>
+#include <Debug.h>
+#include <Streaming.h>
 
 #include <LiveTuner.h>
 

@@ -48,7 +48,7 @@
   //TMC2130Stepper driver = TMC2130Stepper(CS_PIN, R_SENSE, MOSI, MISO, SCK); // bit-bangs SW-SPI
 
   // Initialize Hardware Components:
-  void init_HAL(){
+  void HAL_t::init_core(){
     pinMode(SENSA, INPUT);
     pinMode(SENSB, INPUT);
     pinMode(SENSC, INPUT);
@@ -106,24 +106,24 @@
     driver.diag1_onstate(0);
 
   	digitalWrite(EN_PIN, LOW); // Re-nable
-  } // #init_HAL
+  } // #init_core
 
 
   // DIAGNOTICS:
 
   // Whether the motor is currently in stand-still:
-  bool motor_still(){
+  bool HAL_t::motor_still(){
     return driver.stst(); // TODO: Add encoder feedback checking
   }
 
   // Detect if a motor stall event has been reported on DIAG1 (which is active low).
-  bool motor_stalled(){
+  bool HAL_t::motor_stalled(){
     // Check both in case one diagnostic path becomes broken:
     return !digitalRead(DIAG1) || driver.stallguard();
   }
 
   // Detect if either motor coil is shorted to ground:
-  bool motor_shorted(){
+  bool HAL_t::motor_shorted(){
     // Check both in case one diagnostic path becomes broken:
     return driver.s2ga() | driver.s2gb();
   }
@@ -138,13 +138,13 @@
       - High driver temperatures
     * Therefore, only perform this test while running at low velocity.
     */
-  bool motor_open(){
+  bool HAL_t::motor_open(){
     // Either coil A or B reports open loop AND driver has not been sitting in standstill (for 2^20 clocks):
     return (driver.ola() | driver.olb()) & !motor_still();
   }
 
   // Whether the motor driver is near an over-temperature shutdown.
-  bool driver_warm(){
+  bool HAL_t::driver_warm(){
     return driver.otpw(); // over-temperature pre-warning flag
   }
 
@@ -153,7 +153,7 @@
    * NOTE: Once this threshold has been crossed, it will remain in shutdown
    * driver temperature drops below optw.
    */
-  bool driver_overloaded(){
+  bool HAL_t::driver_overloaded(){
     return driver.ot(); // over-temperature flag
   }
 
