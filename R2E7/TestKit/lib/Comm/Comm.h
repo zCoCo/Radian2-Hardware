@@ -6,7 +6,7 @@
   ** or just pass the Comm an OttiaM1RegisterBank.
   *
   * Author: Connor W. Colombo
-  * Last Update: 9/15/2019, Colombo
+  * Last Update: 9/16/2019, Colombo
  ****/
  #ifndef _M1_COMM_H
  #define _M1_COMM_H
@@ -16,17 +16,64 @@
  /*
   * Standard format for message headers.
   */
- union messageHeader_t{
-   struct data_t{
-     uint16_t address; //      - Bus Address of Device being Targeted
-     uint8_t writeData:1; //   - Writing Data to Register = 1, Reading = 0
-     uint8_t registerID:7; //  - ID of Target Register
-     uint8_t :0; // start new byte
-     uint8_t startByte; //     - 0-indexed number of byte to start reading/writing in the register, inclusive
-     uint8_t length;  //       - Number of bytes to be read/written
-     uint16_t crc; //          - 2-byte Cyclic-Redundancy Checksum of header contents (and an upcoming message if writeData=1)
-   } data;
-   uint8_t raw[sizeof(data_t)];
+  struct message_t{
+    union messageHeader_t{
+      struct headerData_t{
+        uint16_t address; //      - Bus Address of Device being Targeted
+        uint8_t writeData:1; //   - Writing Data to Register = 1, Reading = 0
+        uint8_t registerID:7; //  - ID of Target Register
+        uint8_t :0; // start new byte
+        uint8_t startByte; //     - 0-indexed number of byte to start reading/writing in the register, inclusive
+        uint8_t length;  //       - Number of bytes to be read/written
+        uint16_t crc; //          - 2-byte Cyclic-Redundancy Checksum of header contents (and an upcoming message if writeData=1)
+      } data;
+      uint8_t raw[sizeof(headerData_t)];
+      uint8_t raw_len; //         - Amount of currently loaded header data.
+    } header;
+
+    uint8_t data[MAX_REG_LENGTH];
+    uint8_t data_len; //           - Amount of currently loaded message data.
+
+    /* Reads in the given number of bytes from the stream into the message. If
+    the header isn't full, the bytes go there first. Once full, the bytes go into
+    the message data.
+    Returns the number of bytes placed into the buffer.
+    */
+    uint8_t loadBytes(Stream& stream, const uint8_t num){
+      loadBytesHelper(stream, num, header.raw, sizeof(headerData_t), &header.raw_len)
+    }
+
+  private:
+    /* Reads in the given number of bytes from the stream into the given buffer
+    with a max length of buff_len which currently contains only buff_fill
+    elements.
+    Returns the number of bytes placed into the buffer.
+    */
+    uint8_t loadBytesHelper(Stream& stream, const uint8_t num, uint8_t *const buff, const uint8_t buff_len, uint8_t *const buff_fill){
+      static uint8_t n_hdr; // Number of bytes to load into the header
+      static uint8_t bytes_read; // Number of bytes actually read into the header
+
+      if(num > buff_len - *buff_fill){
+        n_hdr = buff_len - *buff_fill;
+      } else{
+        n_hdr = num;
+      }
+      if(n_hdr > stream.available()){
+        n_hdr = stream.available();
+      }
+
+      bytes_read = stream.readBytes(buff + *buff_fill, n_hdr);
+      *buff_fill = *buff_fill + bytes_read;
+
+      return bytes_read;
+    }
+
+    // TODO: !! Purge the relevant section of the buffer after a message is processed !!
+    // TODO: Make sure this still works in the edge case where the first message is being sent and it's just a request for data (no message data).
+
+  } message;
+
+   void shiftIn
 
    /*
     * Computes the CRC of all Data in the Message Header (except the CRC itself).
@@ -74,10 +121,44 @@
    }
  } messageHeader;
 
+// TODO: NEED COMMS WRAPPER FOR SEND AND READ.
+
+  void write(){
+    activate write line
+    Serial.flush();
+    write data
+    deactivate write line
+  }
+
+  /*
+   * To resychronize a device with a bus's sender, every T ms the sender will
+   * transmit two message headers containing all 1's followed by a one byte
+   * terminator. This guarantees that, barring data corruption, the receiving
+   * device which is scanning in blocks of headers will
+   *
+   * In addition, in order to synchronize new devices, a blanking interval will
+   * be sent by the basestation every time the device which it knew to be the
+   * last in the chain no longer has TERM=1.
+   *
+   * This methods minimizes comms processing time for the receiving device at
+   * the expense of transmitting ~15Bytes every T ms. Fortunately, T is
+   * controllable by the sender and thus this cost can be reduced if neccessary
+   * (ie, lots of devices on the line) at the risk of loosing some devices if
+   * they fall out of sync (which should be unlikely if other protections work).
+   */
+  void transmitBlankingInterval(){
+    static constexpr uint8_t blankingIntervalTerminator = 0xDE;
+    for(uint8_t i=0; i<sizeof(messageHeader.raw); i++){
+      messageHeader.raw[i] = 0xFF;
+    }
+  }
+
  /*
   * Performs a communications update.
-  * Call as often as possible since max buffer size is 64bytes.
-  // Trade onL Blanking intervals or search for initiator.
+  * Call as often as possible since even if the serial buffer is 2048B, at a
+  * max transmit rate of 500kbps, the buffer will be consumed and they device
+  * will likely fall out of sync in T_OSYNC = 32ms.
+  // Trade on Blanking intervals or search for initiator.
   ** TODO: !! address sync issues in protocol since if buffer overflows,
   ** comms will likely remain out of sync. !!
   // TODO: Address potential out-of-sync issue for hotswapped devices (if they
@@ -91,11 +172,17 @@
    static uint8_t* reg_rawData; // address of raw data section of register being read/written
    static uint8_t incomingDataBuffer[MAX_REG_LENGTH]; // Static memory buffer helps fight fragmentation
 
+   // TODO: !! SHOULD NOW BE A LOOP UNTIL ADDRESSED AND VALID MESSAGE IS FOUND OR BUFFER IS EMPTY !!
    // Read In New Message Reader and Respond if Requested:
    if(waiting_for_header && PRIMARY_USART.available() >= sizeof(messageHeader.raw)){
      PRIMARY_USART.readBytes(messageHeader.raw, sizeof(messageHeader));
 
-     if(messageHeader.checkCRC() && messageHeader.data.address == HAL.deviceID){
+     // Check for Blanking Interval
+     if(messageHeader.data.address == 0xFFFF){
+       Serial.readUntil()
+     }
+
+     if(messageHeader.checkHeaderCRC() && messageHeader.data.address == HAL.deviceID){
        // Fetch Raw Data Array of Indicated Register:
        reg_rawData = System.Registers.getRegisterBytesFromID(messageHeader.data.registerID);
        // Ensure All Bytes to be Accessed are in Range (must check both in case
