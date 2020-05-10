@@ -4,8 +4,8 @@
  * Target System Hardware:
  * Stepper Motor connected to a strain-wave geared reduction system.
 ****/
-#ifndef _HAL_H
-#define _HAL_H
+#ifndef _M1_HAL_H
+#define _M1_HAL_H
 
   #include <AccelStepper.h>
 /*
@@ -113,4 +113,4 @@
     stepper.enableOutputs();
   } // #init_stepper
 
-#endif //_HAL_H
+#endif //_M1_HAL_H

@@ -1,28 +1,20 @@
-/****
- * Hardware Abstraction Layer for M1C1v2 (aka R2E7v2) Motor Module Driver:
- *
- * Board Electronics:
- * MCU: STM32-F103C{8T6 or BT6} (Bluepill layout)
- * Motor Driver: Trinamic TMC2130-TA
- * Additional:
- *  - On-board RGB LED Strip Controlled by WS2811
- *  - Automatic Boot Selection and MCU Reset for Programming over RS-485 controlled by MCU activating TPROG when it's device ID is called for programming.
- *  - Automatic Line Termination for RS-485 if this is the last device in the chain (and not plugged in backwards).
- *
- * Author: Connor W. Colombo, Ottia
- * Last Update: 9/14/2019, Colombo
-****/
-#ifndef _M1C1v2_HAL_H
-#define _M1C1v2_HAL_H
+#include <Streaming.h>
+#include <TMCStepper.h>
+#include <FastLED.h> // Using STM32 Fork for Platformio
 
-  #include <SPI.h>
-  #include <TMCStepper.h>
-  #include "TMC2130_REGDEFS.h"
+  // Physical Specs:
+  #define MICROSTEPS 2
 
-  #include <Debug.h>
-  #include <HAL.h>
+  // Motor Specs:
+  constexpr float FULL_STEPS_PER_REV = 200.0f; // ignoring microstepping
+  #define MAX_RPM 90 // [rev/min] Empirical
+  #define ACCEL 500 // [deg/s^2]
+  #define MAX_RMS_CURRENT 2500 // [mA] - Max. RMS motor coil current
 
-  #include <Streaming.h>
+  constexpr float STEPS_PER_REV = MICROSTEPS * FULL_STEPS_PER_REV;
+  constexpr float STEPS_PER_DEG = STEPS_PER_REV / 360.0f;
+
+  constexpr float MAX_STEP_SPEED = MAX_RPM * 360.0f * STEPS_PER_DEG / 60.0f; // [stp/sec]
 
   // Primary Communications:
   #define DEV_ID  PA1   // Device ID Line (analog)
@@ -62,7 +54,7 @@
   #define TPROG   PB8   // Pulse HIGH then LOW to Force MCU into Programming Mode and Trigger Reset, keep high under normal operation
 
   // System Sensing:
-  #define VM_SENS PA0   // ADC pin for Voltage Divider on Main Power Line, VM
+  #define VM_SENS PA0   // ADC pin for to Voltage Divider on Main Power Line, VM
   #define SENSA   PB4   // Left Encoder Sensor 1
   #define SENSB   PB5   // Left Encoder Sensor 2
   #define SENSC   PA15  // Right Encoder Sensor 1
@@ -78,7 +70,7 @@
   #define SERV    PB2   // Also BOOT1 (DON'T output on this line while in programming mode, BOOT0=H or PROG=H).
   #define FAN     PB0   // Fan Control Pin, PWM
 
-  #define LEDS_DO PB12  // Data Output for WS2811 RGB LED Control
+  #define LEDS_DO 28 //PB12  // Data Output for WS2811 RGB LED Control
 
   // SOFTWARE SETUP:
 
@@ -88,27 +80,128 @@
   #define STEP_PIN STP // Step
   #define CS_PIN   _CS_DRV // Chip select
 
-  #define R_SENSE 0.11 // SilentStepStick
-  TMC2130Stepper driver = TMC2130Stepper(CS_PIN, R_SENSE); // all critical driver functions should get wrapped by HAL
+  #define R_SENSE   0.075 //TMC5160 SilentStepStick
+  //#define R_SENSE 0.11 // TMC2130 SilentStepStick
+  
+  TMC5160Stepper driver = TMC5160Stepper(CS_PIN, R_SENSE); // all critical driver functions should get wrapped by HAL
   //TMC2130Stepper driver = TMC2130Stepper(CS_PIN, R_SENSE, MOSI, MISO, SCK); // bit-bangs SW-SPI
 
-  // Basic State Checks:
-  bool HAL_t::in_programming_mode(){
-    return digitalRead(PROG);
+constexpr float steps_per_deg = STEPS_PER_DEG;
+
+#include <AccelStepper.h>
+AccelStepper stepper = AccelStepper(stepper.DRIVER, STEP_PIN, DIR_PIN);
+
+#define NUM_LEDS 6
+CRGB leds[NUM_LEDS];
+
+char data[100];
+
+volatile bool sensorState[4];
+
+void update_encoder(){
+  sensorState[0] = digitalRead(SENSA);
+  sensorState[1] = digitalRead(SENSB);
+  sensorState[2] = digitalRead(SENSC);
+  sensorState[3] = digitalRead(SENSD);
+}
+
+void ISR_A(){
+  if(digitalRead(SENSA)){
+    Serial.println("^A"); // RISING
+  } else{
+    Serial.println(".A"); // FALLING
+  }
+  update_encoder();
+}
+
+void ISR_B(){
+  if(digitalRead(SENSB)){
+    Serial.println("^B"); // RISING
+  } else{
+    Serial.println(".B"); // FALLING
+  }
+  update_encoder();
+}
+
+void ISR_C(){
+  if(digitalRead(SENSC)){
+    Serial.println("^C"); // RISING
+  } else{
+    Serial.println(".C"); // FALLING
+  }
+  update_encoder();
+}
+
+void ISR_D(){
+  if(digitalRead(SENSD)){
+    Serial.println("^D"); // RISING
+  } else{
+    Serial.println(".D"); // FALLING
+  }
+  update_encoder();
+}
+
+void setup() {
+    Serial.begin(9600);
+    init_core();
+
+    FastLED.addLeds<WS2811, LEDS_DO, RGB>(leds, NUM_LEDS);
+
+    set_fan(100);
+    printStatus();
+}
+
+void loop() {
+  // Check to see if should enter programming mode:
+  while(Serial.available() > 0){
+    String str = Serial.readString();
+    if(str.indexOf("PROG") > -1){
+      Serial.println("\t\t - ENTERING PROGRAMMING MODE -");
+      Serial.flush();
+      digitalWrite(TPROG, LOW);
+      delay(750); // Wait for external circuit to trigger RST (should be ~instant).
+    }
   }
 
-  bool HAL_t::last_device_in_chain(){
-    return digitalRead(TERM);
-  }
+   // Move a single white led 
+   for(int whiteLed = 0; whiteLed < NUM_LEDS; whiteLed = whiteLed + 1) {
+      // Turn our current led on to white, then show the leds
+      leds[whiteLed] = CRGB::White;
 
-  bool HAL_t::plugged_in_backwards(){
-    return !digitalRead(_PIB);
-  }
+      // Show the leds (only one of which is set to white, from above)
+      FastLED.show();
+
+      // Wait a little bit
+      delay(100);
+
+      // Turn our current led back to black for the next loop around
+      leds[whiteLed] = CRGB::Black;
+   }
+}
 
   // CONTROL SIGNALS:
 
+  void printStatus(){
+    static char str[100];
+    Serial.println("\t--------");
+    Serial.println("STATUS:");
+    sprintf(str, "\tVoltage: %0.1f", power_voltage()/10.0f);
+    Serial.println(str);
+
+    sprintf(str, "\tMotor: still: %d,\t stalled: %d,\t shorted: %d,\t open: %d", motor_still(), motor_stalled(), motor_shorted(), motor_open());
+    Serial.println(str);
+
+    sprintf(str, "\tDriver: warm: %d,\t overload: %d", driver_warm(), driver_overloaded());
+    Serial.println(str);
+
+    sprintf(str, "\tSENS1: A:%d B%d, \t SENS2: C:%d, D:%d", digitalRead(SENSA), digitalRead(SENSB), digitalRead(SENSC), digitalRead(SENSD));
+    Serial.println(str);
+    
+    Serial.println("\t--------");
+  }
+
   // Sets the Fan Power Level to the Given Value between 0 and 100;
-  void HAL_t::set_fan(uint8_t pwr){
+  void set_fan(uint8_t pwr){
     static constexpr uint16_t scaling = 32768 / 100;
     pwmWrite(FAN, (uint16_t) pwr * scaling);
   }
@@ -117,24 +210,24 @@
 
   // Returns the Voltage of the Board and Actuator's Power Supply, VM, in
   // decivolts (eg. 11.9V = 119)
-  uint8_t HAL_t::power_voltage(){
+  uint8_t power_voltage(){
     static constexpr float scaling = 10.0f / 4095.0f * 3.3f * 7.4f / 1.8f; // 12bit ADC
     return analogRead(VM_SENS) * scaling;
   }
 
   // Whether the motor is currently in stand-still:
-  bool HAL_t::motor_still(){
+  bool motor_still(){
     return driver.stst(); // TODO: Add encoder feedback checking
   }
 
   // Detect if a motor stall event has been reported on DIAG1 (which is active low).
-  bool HAL_t::motor_stalled(){
+  bool motor_stalled(){
     // Check both in case one diagnostic path becomes broken:
     return !digitalRead(DIAG1) || driver.stallguard();
   }
 
   // Detect if either motor coil is shorted to ground:
-  bool HAL_t::motor_shorted(){
+  bool motor_shorted(){
     // Check both in case one diagnostic path becomes broken:
     return driver.s2ga() | driver.s2gb();
   }
@@ -149,13 +242,13 @@
       - High driver temperatures
     * Therefore, only perform this test while running at low velocity.
     */
-  bool HAL_t::motor_open(){
+  bool motor_open(){
     // Either coil A or B reports open loop AND driver has not been sitting in standstill (for 2^20 clocks):
     return (driver.ola() | driver.olb()) & !motor_still();
   }
 
   // Whether the motor driver is near an over-temperature shutdown.
-  bool HAL_t::driver_warm(){
+  bool driver_warm(){
     return driver.otpw(); // over-temperature pre-warning flag
   }
 
@@ -164,20 +257,20 @@
    * NOTE: Once this threshold has been crossed, it will remain in shutdown
    * driver temperature drops below optw.
    */
-  bool HAL_t::driver_overloaded(){
+  bool driver_overloaded(){
     return driver.ot(); // over-temperature flag
   }
 
   // Initialize Hardware Components:
-  void HAL_t::init_core(){
-    Debug.println("Initializing HAL");
+  void init_core(){
+    Serial.println("Initializing HAL");
 
     // State Sensing:
     pinMode(DEV_ID, INPUT_ANALOG);
-    this->deviceID = analogRead(DEV_ID);
-    Debug << "Device ID: " << deviceID << endl;
+    long deviceID = analogRead(DEV_ID);
+    Serial << "Device ID: " << deviceID << endl;
     pinMode(VM_SENS, INPUT_ANALOG);
-    Debug << "Power Level: " << power_voltage() << "V" << endl;
+    Serial << "Power Level: " << power_voltage() << "dV" << endl;
 
     pinMode(_PIB, INPUT);
     pinMode(TERM, INPUT);
@@ -188,14 +281,15 @@
     pinMode(PROG, INPUT);
 
     if(digitalRead(PROG)){
-      Debug.println(
+      Serial.println(
         "MCU programming mode detected. \n"
         "Switching back to normal mode and restarting MCU."
       );
+      Serial.flush();
       digitalWrite(TPROG, LOW);
       delay(750); // Wait for external circuit to trigger RST (should be ~instant).
     } else{
-      Debug.println("MCU is in normal operating mode.")
+      Serial.println("MCU is in normal operating mode.");
     }
 
     // Encoder Inputs:
@@ -206,9 +300,12 @@
     pinMode(SENSB, INPUT);
     pinMode(SENSC, INPUT);
     pinMode(SENSD, INPUT);
+    attachInterrupt(digitalPinToInterrupt(SENSA), ISR_A, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(SENSB), ISR_B, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(SENSC), ISR_C, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(SENSD), ISR_D, CHANGE);
 
     // Control:
-
     pinMode(FAN, PWM);
     // pinMode(SERV, OUTPUT); // PB2/BOOT1 (shared by SERV) might not have a timer. Proceed with caution.
     pinMode(LEDS_DO, OUTPUT);
@@ -219,44 +316,45 @@
     pinMode(ENA, OUTPUT);
     digitalWrite(ENA, LOW);
 
-    pinMode(CS_DRV, OUTPUT);
-    digitalWrite(CS_DRV, HIGH);
+    pinMode(_CS_DRV, OUTPUT);
+    digitalWrite(_CS_DRV, HIGH);
     SPI.begin();
     pinMode(MISO, INPUT_PULLUP);
 
     driver.begin();             // Initiate pins and registeries
-    driver.rms_current(MAX_RMS_CURRENT);
+    driver.rms_current(MAX_RMS_CURRENT);    // Set stepper current to 600mA. The command is the same as command TMC2130.setCurrent(600, 0.11, 0.5);
     //driver.stealthChop(1);      // Enable extremely quiet stepping
     //driver.stealth_autoscale(1);
     driver.microsteps(MICROSTEPS);
     driver.diag1_stall(1);
     driver.diag1_pushpull(1);
 
-  	driver.push(); // Push shadow registers
+    driver.push(); // Push shadow registers
       driver.tbl(1);
       driver.TPOWERDOWN(255);
-  	driver.toff(4);
+    driver.toff(4);
 
     // coolStep Threshold:
     driver.TCOOLTHRS(0xFFFFF); // 20bit max
     driver.THIGH(0);
 
     // stallGuard2:
-    driver.semin(5);
-    driver.semax(2);
+    driver.semin(6);
+    driver.semax(3);
     driver.sedn(0b01);
-    driver.sgt(15); // STALL_VALUE:[-64..63] - higher->less sensitive
+    driver.seup(0b11);
+    driver.sgt(25); // STALL_VALUE:[-64..63] - higher->less sensitive
 
-  	// Effective hysteresis = 0
-  	driver.hstrt(0);
-  	driver.hend(2);
+    // Effective hysteresis = 0
+    driver.hstrt(0);
+    driver.hend(2);
 
-  	// stealthChop PWM:
-  	/*driver.en_pwm_mode(true);
-  	driver.pwm_freq(1);
-  	driver.pwm_autoscale(true);
-  	driver.pwm_ampl(180);
-  	driver.pwm_grad(1);*/
+    // stealthChop PWM:
+    /*driver.en_pwm_mode(true);
+    driver.pwm_freq(1);
+    driver.pwm_autoscale(true);
+    driver.pwm_ampl(180);
+    driver.pwm_grad(1);*/
 
     // Ensure DIAG1 only reports on motor stall:
     pinMode(DIAG1, INPUT_PULLUP); // rated as weak pull-up at 30-50kOhm, DIAG1 is spec'd for 47kOhm max.
@@ -265,7 +363,5 @@
     driver.diag1_index(0);
     driver.diag1_onstate(0);
 
-  	digitalWrite(EN_PIN, LOW); // Re-nable
+    digitalWrite(EN_PIN, LOW); // Re-nable
   } // #init_core
-
-#endif // _M1C1v2_HAL_H

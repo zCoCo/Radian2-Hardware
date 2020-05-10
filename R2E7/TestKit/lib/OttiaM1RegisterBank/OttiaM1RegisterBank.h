@@ -4,18 +4,18 @@
  * that communicate on the Ottia M1 RS-485 bus.
  *
  * NOTE: To maintain >100Hz comm. speed with 25 devices on the line where RS485
- *       is clipped at 500kbps, registers must be <=16Bytes to maintain message
- *       sizes < 21B.
+ *       is clipped at 500kbps, registers must be <=14Bytes to maintain message
+ *       sizes <= 21B with a message header of 7B.
  *
- * Author: Connor W. Colombo
- * Last Update: 9/15/2019, Colombo
+ * Author: Connor W. Colombo, Ottia
+ * Last Update: 11/24/2019, Colombo
 ****/
 #ifndef _OTTIA_M1_REG_H
 #define _OTTIA_M1_REG_H
 
   #include "Register.h"
 
-  #define MAX_REG_LENGTH 16 // Absolute maximum acceptible number of bytes in register
+  #define MAX_REG_LENGTH 15 // Absolute maximum acceptible number of bytes in a register
 
   struct OttiaM1RegisterBank{ // Multiple banks will need to be instantiated for basestation
     // Frequently Updated / Requested:
@@ -29,6 +29,7 @@
     the Given ID. */
     unsigned char* getRegisterBytesFromID(unsigned int id){
       switch(id){ // TODO: find an automatic, equally memory efficient way to do this.
+                  // void* ARRAY???
         case 0:
           return this->LatestCommand.raw;
         break;
@@ -83,7 +84,13 @@
     uint8_t voltage; //             - Supply Voltage (VM), in decivolts (eg. 15.2V = 152);
 
     // "Coils":
-    unsigned char bufferFull:1; //  - Whether the Commands Buffer is Full (can't accept new commands)
+    enum m1_bufferState_t = {
+      open = 0, //  - Buffer in nominal state
+      warn = 1, //  - Buffer filling up (Navail > 0.5*SERIAL_RX_BUFFER_SIZE)
+      severe = 2, //- Buffer near max capacity (Navail > 0.75*SERIAL_RX_BUFFER_SIZE)
+      overload = 3//- Buffer at max capacity. Driver likely missing messages (Navail > SERIAL_RX_BUFFER_SIZE)
+    };
+    unsigned char bufferState:2; // - State of the Primary Comms Buffer (takes m1_bufferState_t)
     unsigned char still:1; //       - Motor Still (see HAL#motor_still)
     unsigned char driverWarm:1; //  - Motor Getting Hot (see HAL#driver_warm)
     struct fault{
@@ -111,5 +118,4 @@
     unsigned char PIB:1;  //        - Whether the Connector is Detected as being Plugged-In-Backwards.
     uint16_t DevID_raw;  //         - Raw Reading from Device ID.
   };
-
 #endif //_OTTIA_M1_REG_H
