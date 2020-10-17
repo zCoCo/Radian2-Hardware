@@ -16,7 +16,7 @@
   };
 
   // LED Colors (used later):
-  typedef uint32_t color_t;
+  typedef uint32_t color_t; // TODO: Create a system state machine and link this to the system state (states should be managed / changed from within the SM by monitoring external data)
   namespace COLOR { // static collection
     static constexpr color_t off = 0x000000;
     static constexpr color_t white = 0xFFFFFF;

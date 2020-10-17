@@ -22,8 +22,8 @@
 
     // Header Struct (standard format for message headers):
     struct {
-      union messageHeader_t{
-        struct headerData_t{
+      union {
+        struct {
           uint16_t address; //      - Bus Address of Device being Targeted
           uint8_t writeData:1; //   - Writing Data to Register = 1, Reading = 0
           uint8_t registerID:7; //  - ID of Target Register
@@ -32,7 +32,7 @@
           uint8_t length;  //       - Number of bytes to be read/written
           uint16_t crc; //          - 2-byte Cyclic-Redundancy Checksum of header contents (and an upcoming message if writeData=1)
         } data;
-        uint8_t raw[sizeof(headerData_t)];
+        uint8_t raw[sizeof(data)];
       };
       uint8_t raw_len; //         - Amount of currently loaded header data.
 
@@ -57,7 +57,7 @@
       uint16_t computeCRC(uint8_t* dataBuff = nullptr, uint8_t buffLen = 0){
         uint16_t crc = 0xFFFF;
         // CRC everything in header except last two bytes (which contain the CRC):
-        for(uint8_t i=0; i<(sizeof(messageHeader_t)-2); ++i){
+        for(uint8_t i=0; i<(sizeof(raw)-2); ++i){
           updateCRC16(&crc, raw[i]);
         }
 
@@ -447,7 +447,7 @@
       // Finds the index of the devices with the given address in this bus's
       // actuator map.
       // Returns i=MAX_DEVICES_PER_LINE if address is not found.
-      uint8_t addressToIndex(uint16_t addr){
+      uint8_t addressToIndex(uint16_t addr){ // Send out a blast of pings then see who responds (will have to have timeouts as basic arbitration to prevent data collisions)
         static uint8_t i;
 
         i=0;
